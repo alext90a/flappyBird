@@ -110,6 +110,13 @@ void Sprite::setPos(D3DXVECTOR3 pos)
 	mPosMat._43 = pos.z;
 }
 
+void Sprite::addPos(float x, float y, float z)
+{
+	mPosMat._41 += x;
+	mPosMat._42 += y;
+	mPosMat._43 += z;
+}
+
 D3DXVECTOR3 Sprite::getPos()const
 {
 	D3DXVECTOR3 pos;

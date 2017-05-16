@@ -24,6 +24,7 @@ public:
 	void clean();
 	void setPos(float x, float y, float z);
 	void setPos(D3DXVECTOR3 pos);
+	void addPos(float x, float y, float z);
 	D3DXVECTOR3 getPos()const;
 
 protected:

@@ -82,7 +82,7 @@ HRESULT Game::initGeometry()
 	mSprite = std::make_shared<Sprite>();
 	mSprite->init(g_pd3dDevice);
 
-	SetRect(&textbox, 320, 240, 640, 480);
+	SetRect(&textbox, 0, 0, 640, 480);
 	D3DXCreateFont(g_pd3dDevice,    // the D3D Device
 		24,    // font height
 		0,    // default font width
@@ -111,7 +111,7 @@ void Game::SetupMatrices()
 	// a point to lookat, and a direction for which way is up. Here, we set the
 	// eye five units back along the z-axis and up three units, look at the
 	// origin, and define "up" to be in the y-direction.
-	D3DXVECTOR3 vEyePt(0.0f, 0.0f, -5.0f);
+	D3DXVECTOR3 vEyePt(0.0f, 0.0f, -25.0f);
 	D3DXVECTOR3 vLookatPt(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
 	D3DXMATRIXA16 matView;
@@ -125,7 +125,7 @@ void Game::SetupMatrices()
 	// the aspect ratio, and the near and far clipping planes (which define at
 	// what distances geometry should be no longer be rendered).
 	D3DXMATRIXA16 matProj;
-	D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI / 4, 1.0f, 1.0f, 100.0f);
+	D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI / 4, 640.0f/480.0f, 1.0f, 100.0f);
 	g_pd3dDevice->SetTransform(D3DTS_PROJECTION, &matProj);
 }
 
@@ -170,6 +170,25 @@ void Game::processInput(WPARAM wParam)
 		D3DXVECTOR3 pos = mSprite->getPos();
 		pos.y += 1.0f;
 		mSprite->setPos(pos);
+	}
+
+	else if (wParam == VK_DOWN)
+	{
+		mSprite->addPos(0.0f, -1.0f, 0.0f);
+	}
+
+	else if (wParam == VK_LEFT)
+	{
+		mSprite->addPos(-1.0f, 0.0f, 0.0f);
+	}
+
+	else if (wParam == VK_RIGHT)
+	{
+		mSprite->addPos(1.0f, 0.0f, 0.0f);
+	}
+	else
+	{
+
 	}
 	
 }
