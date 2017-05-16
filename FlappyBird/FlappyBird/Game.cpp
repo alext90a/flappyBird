@@ -27,8 +27,8 @@ HRESULT Game::init(HWND hWnd)
 void Game::close()
 {
 	mTextureManager->clean();
-
-	mSprite->clean();
+	
+	mPlayer->clean();
 
 	if (g_pd3dDevice != NULL)
 		g_pd3dDevice->Release();
@@ -75,12 +75,28 @@ HRESULT Game::initD3D(HWND hWnd)
 
 HRESULT Game::initGeometry()
 {
+	mCollideableStore.reserve(GameConstants::kCollideable);
 
 	mTextureManager->init(g_pd3dDevice);
 	mBananaTexture = mTextureManager->createTexture("image.jpg");
 
-	mSprite = std::make_shared<Sprite>();
-	mSprite->init(g_pd3dDevice);
+	//create player
+	mPlayer = std::make_shared<GameObject>();
+	mPlayer->init(g_pd3dDevice);
+	std::shared_ptr<Sprite> playerSprite = std::make_shared<Sprite>();
+	playerSprite->init(g_pd3dDevice);
+	mPlayer->addComponent(playerSprite);
+
+	mPlayerBounds = std::make_shared<BoundingBox>();
+	mPlayer->addComponent(mPlayerBounds);
+
+	//==============================================
+
+	/*
+	mEnemy = std::make_shared<Sprite>();
+	mEnemy->init(g_pd3dDevice);
+	mEnemy->setPos(D3DXVECTOR3(2.0f, 2.0f, 0.0f));
+	*/
 
 	SetRect(&textbox, 0, 0, 640, 480);
 	D3DXCreateFont(g_pd3dDevice,    // the D3D Device
@@ -129,6 +145,31 @@ void Game::SetupMatrices()
 	g_pd3dDevice->SetTransform(D3DTS_PROJECTION, &matProj);
 }
 
+void Game::update()
+{
+	checkCollideables();
+}
+
+void Game::checkCollideables()
+{
+	const BoundingBox* const playerBoundingBox = mPlayerBounds.get();
+	
+	for (auto curBoundingBox : mCollideableStore)
+	{
+		if (curBoundingBox->isPointInside(playerBoundingBox->getBottomRight()) || 
+			curBoundingBox->isPointInside(playerBoundingBox->getTopLeft())|| 
+			playerBoundingBox->isPointInside(curBoundingBox->getBottomRight()) || 
+			playerBoundingBox->isPointInside(curBoundingBox->getTopLeft())
+			)
+			
+		{
+			mTestText = "object collided!";
+			break;
+		}
+	}
+	
+}
+
 void Game::render()
 {
 	// Clear the backbuffer and the zbuffer
@@ -143,7 +184,7 @@ void Game::render()
 
 		mBananaTexture->draw();
 
-		mSprite->draw();
+		mPlayer->draw();
 
 		g_Font->DrawTextA(NULL,
 			mTestText.c_str(),
@@ -167,24 +208,22 @@ void Game::processInput(WPARAM wParam)
 	
 	if (wParam == VK_UP)
 	{
-		D3DXVECTOR3 pos = mSprite->getPos();
-		pos.y += 1.0f;
-		mSprite->setPos(pos);
+		mPlayer->addPos(0.0f, 1.0f, 0.0f);
 	}
 
 	else if (wParam == VK_DOWN)
 	{
-		mSprite->addPos(0.0f, -1.0f, 0.0f);
+		mPlayer->addPos(0.0f, -1.0f, 0.0f);
 	}
 
 	else if (wParam == VK_LEFT)
 	{
-		mSprite->addPos(-1.0f, 0.0f, 0.0f);
+		mPlayer->addPos(-1.0f, 0.0f, 0.0f);
 	}
 
 	else if (wParam == VK_RIGHT)
 	{
-		mSprite->addPos(1.0f, 0.0f, 0.0f);
+		mPlayer->addPos(1.0f, 0.0f, 0.0f);
 	}
 	else
 	{

@@ -17,17 +17,22 @@
 #include <memory.h>
 #include <tchar.h>
 #include <string>
+#include <vector>
 #include <memory>
 #include <list>
+#include <functional>
 #include <d3dx9.h>
 #pragma warning( disable : 4996 ) // disable deprecated warning 
 #include <strsafe.h>
 #pragma warning( default : 4996 )
 
+#include "IComponent.h"
+#include "GameConstants.h"
+#include "BoundingBox.h"
 #include "Sprite.h"
 #include "Texture.h"
 #include "TextureManager.h"
-
+#include "GameObject.h"
 #include "Game.h"
 
 // TODO: reference additional headers your program requires here

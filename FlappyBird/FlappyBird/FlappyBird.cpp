@@ -144,7 +144,10 @@ INT WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, INT)
 				DispatchMessage(&msg);
 			}
 			else
+			{
+				mGame->update();
 				mGame->render();
+			}
 		}
 
 	}
