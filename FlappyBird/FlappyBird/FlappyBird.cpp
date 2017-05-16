@@ -41,6 +41,7 @@ LPDIRECT3DVERTEXBUFFER9 g_pVB = NULL; // Buffer to hold vertices
 //LPDIRECT3DTEXTURE9      g_pTexture = NULL; // Our texture
 std::unique_ptr<TextureManager> mTextureManager = std::make_unique<TextureManager>();
 std::shared_ptr<Texture> mBananaTexture = nullptr;
+std::shared_ptr<Sprite> mSprite = nullptr;
 
 										   // A structure for our custom vertex type. We added texture coordinates
 struct CUSTOMVERTEX
@@ -110,53 +111,12 @@ HRESULT InitD3D(HWND hWnd)
 //-----------------------------------------------------------------------------
 HRESULT InitGeometry()
 {
-	// Use D3DX to create a texture from a file based image
-	/*
-	if (FAILED(D3DXCreateTextureFromFile(g_pd3dDevice, "banana.bmp", &g_pTexture)))
-	{
-		// If texture is not in current folder, try parent folder
-		if (FAILED(D3DXCreateTextureFromFile(g_pd3dDevice, "..\\banana.bmp", &g_pTexture)))
-		{
-			MessageBox(NULL, "Could not find banana.bmp", "Textures.exe", MB_OK);
-			return E_FAIL;
-		}
-	}
-	*/
+
 	mTextureManager->init(g_pd3dDevice);
 	mBananaTexture = mTextureManager->createTexture("banana.bmp");
 
-	// Create the vertex buffer.
-	if (FAILED(g_pd3dDevice->CreateVertexBuffer(50 * 2 * sizeof(CUSTOMVERTEX),
-		0, D3DFVF_CUSTOMVERTEX,
-		D3DPOOL_DEFAULT, &g_pVB, NULL)))
-	{
-		return E_FAIL;
-	}
-
-	// Fill the vertex buffer. We are setting the tu and tv texture
-	// coordinates, which range from 0.0 to 1.0
-	CUSTOMVERTEX* pVertices;
-	if (FAILED(g_pVB->Lock(0, 0, (void**)&pVertices, 0)))
-		return E_FAIL;
-	for (DWORD i = 0; i < 50; i++)
-	{
-		FLOAT theta = (2 * D3DX_PI * i) / (50 - 1);
-
-		pVertices[2 * i + 0].position = D3DXVECTOR3(sinf(theta), -1.0f, cosf(theta));
-		pVertices[2 * i + 0].color = 0xffffffff;
-#ifndef SHOW_HOW_TO_USE_TCI
-		pVertices[2 * i + 0].tu = ((FLOAT)i) / (50 - 1);
-		pVertices[2 * i + 0].tv = 1.0f;
-#endif
-
-		pVertices[2 * i + 1].position = D3DXVECTOR3(sinf(theta), 1.0f, cosf(theta));
-		pVertices[2 * i + 1].color = 0xff808080;
-#ifndef SHOW_HOW_TO_USE_TCI
-		pVertices[2 * i + 1].tu = ((FLOAT)i) / (50 - 1);
-		pVertices[2 * i + 1].tv = 0.0f;
-#endif
-	}
-	g_pVB->Unlock();
+	mSprite = std::make_shared<Sprite>();
+	mSprite->init(g_pd3dDevice);
 
 	return S_OK;
 }
@@ -170,14 +130,10 @@ HRESULT InitGeometry()
 //-----------------------------------------------------------------------------
 VOID Cleanup()
 {
-	/*
-	if (g_pTexture != NULL)
-		g_pTexture->Release();
-	*/
+
 	mTextureManager->clean();
 
-	if (g_pVB != NULL)
-		g_pVB->Release();
+	mSprite->clean();
 
 	if (g_pd3dDevice != NULL)
 		g_pd3dDevice->Release();
@@ -241,60 +197,9 @@ VOID Render()
 		// Setup the world, view, and projection matrices
 		SetupMatrices();
 
-		// Setup our texture. Using textures introduces the texture stage states,
-		// which govern how textures get blended together (in the case of multiple
-		// textures) and lighting information. In this case, we are modulating
-		// (blending) our texture with the diffuse color of the vertices.
 		mBananaTexture->draw();
-		/*
-		g_pd3dDevice->SetTexture(0, g_pTexture);
-		g_pd3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
-		g_pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-		g_pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-		g_pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
-		*/
 
-#ifdef SHOW_HOW_TO_USE_TCI
-		// Note: to use D3D texture coordinate generation, use the stage state
-		// D3DTSS_TEXCOORDINDEX, as shown below. In this example, we are using
-		// the position of the vertex in camera space (D3DTSS_TCI_CAMERASPACEPOSITION)
-		// to generate texture coordinates. Camera space is the vertex position
-		// multiplied by the World and View matrices.  The tex coord index (TCI)  
-		// parameters are passed into a texture transform, which is a 4x4 matrix  
-		// which transforms the x,y,z TCI coordinates into tu, tv texture coordinates.
-
-		// In this example, the texture matrix is setup to transform the input
-		// camera space coordinates (all of R^3) to projection space (-1,+1) 
-		// and finally to texture space (0,1).
-		//    CameraSpace.xyzw = (input vertex position) * (WorldView)
-		//    ProjSpace.xyzw = CameraSpace.xyzw * Projection           //move to -1 to 1
-		//    TexSpace.xyzw = ProjSpace.xyzw * ( 0.5, -0.5, 1.0, 1.0 ) //scale to -0.5 to 0.5 (flip y)
-		//    TexSpace.xyzw += ( 0.5, 0.5, 0.0, 0.0 )                  //shift to 0 to 1
-
-		// Setting D3DTSS_TEXTURETRANSFORMFLAGS to D3DTTFF_COUNT4 | D3DTTFF_PROJECTED
-		// tells D3D to divide the input texture coordinates by the 4th (w) component.
-		// This divide is necessary when performing a perspective projection since
-		// the TexSpace.xy coordinates prior to the homogeneous divide are not actually 
-		// in the 0 to 1 range.
-		D3DXMATRIXA16 mTextureTransform;
-		D3DXMATRIXA16 mProj;
-		D3DXMATRIXA16 mTrans;
-		D3DXMATRIXA16 mScale;
-
-		g_pd3dDevice->GetTransform(D3DTS_PROJECTION, &mProj);
-		D3DXMatrixTranslation(&mTrans, 0.5f, 0.5f, 0.0f);
-		D3DXMatrixScaling(&mScale, 0.5f, -0.5f, 1.0f);
-		mTextureTransform = mProj * mScale * mTrans;
-
-		g_pd3dDevice->SetTransform(D3DTS_TEXTURE0, &mTextureTransform);
-		g_pd3dDevice->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT4 | D3DTTFF_PROJECTED);
-		g_pd3dDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACEPOSITION);
-#endif
-
-		// Render the vertex buffer contents
-		g_pd3dDevice->SetStreamSource(0, g_pVB, 0, sizeof(CUSTOMVERTEX));
-		g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
-		g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2 * 50 - 2);
+		mSprite->draw();
 
 		// End the scene
 		g_pd3dDevice->EndScene();
@@ -346,7 +251,7 @@ INT WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, INT)
 
 	// Create the application's window
 	HWND hWnd = CreateWindow("D3D Tutorial", "D3D Tutorial 05: Textures",
-		WS_OVERLAPPEDWINDOW, 100, 100, 300, 300,
+		WS_OVERLAPPEDWINDOW, 100, 100, 640, 480,
 		NULL, NULL, wc.hInstance, NULL);
 
 	// Initialize Direct3D

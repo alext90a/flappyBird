@@ -24,6 +24,7 @@
 #include <strsafe.h>
 #pragma warning( default : 4996 )
 
+#include "Sprite.h"
 #include "Texture.h"
 #include "TextureManager.h"
 
