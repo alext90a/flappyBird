@@ -74,11 +74,16 @@ HRESULT Sprite::init(LPDIRECT3DDEVICE9 device)
 	g_pIB->Lock(0, 0, (void**)&pVoid, 0);
 	memcpy(pVoid, indices, sizeof(indices));
 	g_pIB->Unlock();
+
+
+	D3DXMatrixIdentity(&mPosMat);
 	return S_OK;
 }
 
 void Sprite::draw()
 {
+	g_pd3dDevice->SetTransform(D3DTS_WORLD, &mPosMat);
+
 	g_pd3dDevice->SetStreamSource(0, g_pVB, 0, sizeof(CUSTOMVERTEX));
 	g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
 	g_pd3dDevice->SetIndices(g_pIB);
@@ -89,4 +94,27 @@ void Sprite::clean()
 {
 	if (g_pVB != NULL)
 		g_pVB->Release();
+}
+
+void Sprite::setPos(float x, float y, float z)
+{
+	mPosMat._41 = x;
+	mPosMat._42 = y;
+	mPosMat._43 = z;
+}
+
+void Sprite::setPos(D3DXVECTOR3 pos)
+{
+	mPosMat._41 = pos.x;
+	mPosMat._42 = pos.y;
+	mPosMat._43 = pos.z;
+}
+
+D3DXVECTOR3 Sprite::getPos()const
+{
+	D3DXVECTOR3 pos;
+	pos.x = mPosMat._41;
+	pos.y = mPosMat._42;
+	pos.z = mPosMat._43;
+	return pos;
 }

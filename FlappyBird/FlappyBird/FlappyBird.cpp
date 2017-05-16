@@ -210,7 +210,15 @@ VOID Render()
 }
 
 
-
+void processInput(WPARAM wParam)
+{
+	if (wParam == VK_UP)
+	{
+		D3DXVECTOR3 pos = mSprite->getPos();
+		pos.y += 1.0f;
+		mSprite->setPos(pos);
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Name: MsgProc()
@@ -224,6 +232,9 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		Cleanup();
 		PostQuitMessage(0);
 		return 0;
+	case WM_KEYDOWN:
+		processInput(wParam);
+
 	}
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);
