@@ -12,10 +12,11 @@ public:
 	const D3DXVECTOR3* const getBottomRight()const;
 
 	bool isPointInside(const D3DXVECTOR3* point)const;
+	bool isIntersect(const BoundingBox* const)const;
 
 	void onMatrixChanged(const D3DXMATRIXA16* const matrix)override;
 protected:
-	D3DXVECTOR3 mTopLeft = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	D3DXVECTOR3 mBottomRight = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 mTopLeft = D3DXVECTOR3(-1.0f, 1.0f, 0.0f);
+	D3DXVECTOR3 mBottomRight = D3DXVECTOR3(1.0f, -1.0f, 0.0f);
 };
 

@@ -29,11 +29,12 @@ protected:
 	std::shared_ptr<Texture> mBananaTexture = nullptr;
 	std::shared_ptr<GameObject> mPlayer = nullptr;
 	std::shared_ptr<BoundingBox> mPlayerBounds = nullptr;
-	//std::shared_ptr<Sprite> mEnemy = nullptr;
 
 	std::string mTestText = "Hello word!";
 	RECT textbox;
 
 	std::vector<const BoundingBox*> mCollideableStore;
+
+	std::vector<std::shared_ptr<GameObject>> mGameObjects;
 };
 

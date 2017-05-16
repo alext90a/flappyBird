@@ -4,6 +4,7 @@
 
 Game::Game()
 {
+	mGameObjects.reserve(GameConstants::kMaxGameObjects);
 }
 
 
@@ -28,7 +29,10 @@ void Game::close()
 {
 	mTextureManager->clean();
 	
-	mPlayer->clean();
+	for (auto curObj : mGameObjects)
+	{
+		curObj->clean();
+	}
 
 	if (g_pd3dDevice != NULL)
 		g_pd3dDevice->Release();
@@ -90,13 +94,21 @@ HRESULT Game::initGeometry()
 	mPlayerBounds = std::make_shared<BoundingBox>();
 	mPlayer->addComponent(mPlayerBounds);
 
+	mGameObjects.push_back(mPlayer);
 	//==============================================
 
-	/*
-	mEnemy = std::make_shared<Sprite>();
-	mEnemy->init(g_pd3dDevice);
-	mEnemy->setPos(D3DXVECTOR3(2.0f, 2.0f, 0.0f));
-	*/
+	
+	std::shared_ptr<GameObject> enemy = std::make_shared<GameObject>();
+	enemy->init(g_pd3dDevice);
+	playerSprite = std::make_shared<Sprite>();
+	playerSprite->init(g_pd3dDevice);
+	enemy->addComponent(playerSprite);
+	
+	std::shared_ptr<BoundingBox> box = std::make_shared<BoundingBox>();
+	enemy->addComponent(box);
+	mCollideableStore.push_back(box.get());
+	//enemy->setPos(D3DXVECTOR3(2.0f, 2.0f, 0.0f));
+	mGameObjects.push_back(enemy);
 
 	SetRect(&textbox, 0, 0, 640, 480);
 	D3DXCreateFont(g_pd3dDevice,    // the D3D Device
@@ -156,17 +168,14 @@ void Game::checkCollideables()
 	
 	for (auto curBoundingBox : mCollideableStore)
 	{
-		if (curBoundingBox->isPointInside(playerBoundingBox->getBottomRight()) || 
-			curBoundingBox->isPointInside(playerBoundingBox->getTopLeft())|| 
-			playerBoundingBox->isPointInside(curBoundingBox->getBottomRight()) || 
-			playerBoundingBox->isPointInside(curBoundingBox->getTopLeft())
-			)
+		if (curBoundingBox->isIntersect(playerBoundingBox))
 			
 		{
 			mTestText = "object collided!";
-			break;
+			return;
 		}
 	}
+	mTestText = "";
 	
 }
 
@@ -184,8 +193,10 @@ void Game::render()
 
 		mBananaTexture->draw();
 
-		mPlayer->draw();
-
+		for (auto curObj : mGameObjects)
+		{
+			curObj->draw();
+		}
 		g_Font->DrawTextA(NULL,
 			mTestText.c_str(),
 			strlen(mTestText.c_str()),
