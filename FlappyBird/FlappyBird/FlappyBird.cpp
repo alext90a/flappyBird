@@ -212,6 +212,7 @@ VOID Render()
 
 void processInput(WPARAM wParam)
 {
+	
 	if (wParam == VK_UP)
 	{
 		D3DXVECTOR3 pos = mSprite->getPos();
