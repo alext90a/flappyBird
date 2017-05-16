@@ -113,7 +113,7 @@ HRESULT InitGeometry()
 {
 
 	mTextureManager->init(g_pd3dDevice);
-	mBananaTexture = mTextureManager->createTexture("banana.bmp");
+	mBananaTexture = mTextureManager->createTexture("image.jpg");
 
 	mSprite = std::make_shared<Sprite>();
 	mSprite->init(g_pd3dDevice);
@@ -153,14 +153,14 @@ VOID SetupMatrices()
 	// Set up world matrix
 	D3DXMATRIXA16 matWorld;
 	D3DXMatrixIdentity(&matWorld);
-	D3DXMatrixRotationX(&matWorld, timeGetTime() / 1000.0f);
+	//D3DXMatrixRotationX(&matWorld, timeGetTime() / 1000.0f);
 	g_pd3dDevice->SetTransform(D3DTS_WORLD, &matWorld);
 
 	// Set up our view matrix. A view matrix can be defined given an eye point,
 	// a point to lookat, and a direction for which way is up. Here, we set the
 	// eye five units back along the z-axis and up three units, look at the
 	// origin, and define "up" to be in the y-direction.
-	D3DXVECTOR3 vEyePt(0.0f, 3.0f, -5.0f);
+	D3DXVECTOR3 vEyePt(0.0f, 0.0f, -5.0f);
 	D3DXVECTOR3 vLookatPt(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
 	D3DXMATRIXA16 matView;

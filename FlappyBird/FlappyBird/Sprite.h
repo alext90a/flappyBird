@@ -26,5 +26,6 @@ public:
 protected:
 	LPDIRECT3DDEVICE9       g_pd3dDevice;
 	LPDIRECT3DVERTEXBUFFER9 g_pVB = NULL; // Buffer to hold vertices
+	LPDIRECT3DINDEXBUFFER9 g_pIB = NULL;
 };
 
