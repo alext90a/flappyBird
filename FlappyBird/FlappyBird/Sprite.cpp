@@ -16,7 +16,7 @@ HRESULT Sprite::init(LPDIRECT3DDEVICE9 device)
 	g_pd3dDevice = device;
 
 	// Create the vertex buffer.
-	if (FAILED(g_pd3dDevice->CreateVertexBuffer(3 * sizeof(CUSTOMVERTEX),
+	if (FAILED(g_pd3dDevice->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX),
 		0, D3DFVF_CUSTOMVERTEX,
 		D3DPOOL_DEFAULT, &g_pVB, NULL)))
 	{
@@ -50,7 +50,7 @@ HRESULT Sprite::init(LPDIRECT3DDEVICE9 device)
 	pVertices[3].tv = 0.0f;
 
 	g_pVB->Unlock();
-
+	
 	VOID* pVoid; 
 	short indices[] =
 	{
@@ -75,7 +75,7 @@ HRESULT Sprite::init(LPDIRECT3DDEVICE9 device)
 	memcpy(pVoid, indices, sizeof(indices));
 	g_pIB->Unlock();
 
-
+	
 	D3DXMatrixIdentity(&mPosMat);
 	return S_OK;
 }

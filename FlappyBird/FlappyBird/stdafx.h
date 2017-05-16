@@ -28,4 +28,6 @@
 #include "Texture.h"
 #include "TextureManager.h"
 
+#include "Game.h"
+
 // TODO: reference additional headers your program requires here
