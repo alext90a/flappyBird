@@ -14,9 +14,10 @@ GameObject::~GameObject()
 bool GameObject::init(LPDIRECT3DDEVICE9 device)
 {
 	g_pd3dDevice = device;
-	D3DXMatrixIdentity(&mPosMatrix);
-	D3DXMatrixIdentity(&mScaleMatrix);
-
+	D3DXMatrixIdentity(&mLocalPosMatrix);
+	D3DXMatrixIdentity(&mLocalScaleMatrix);
+	D3DXMatrixIdentity(&mWorldPosMatrix);
+	D3DXMatrixIdentity(&mWorldScaleMatrix);
 
 	
 	return true;
@@ -29,10 +30,15 @@ void GameObject::addComponent(std::shared_ptr<IComponent> component)
 
 void GameObject::draw()
 {
-	g_pd3dDevice->SetTransform(D3DTS_WORLD, &mResMatrix);
+	g_pd3dDevice->SetTransform(D3DTS_WORLD, &mWorldResMatrix);
 	for (auto curComponent : mComponents)
 	{
 		curComponent->draw();
+	}
+
+	for (auto curChild : mChilds)
+	{
+		curChild->draw();
 	}
 }
 
@@ -42,84 +48,99 @@ void GameObject::update()
 	{
 		curComponent->update();
 	}
+
+	for (auto curChild : mChilds)
+	{
+		curChild->update();
+	}
 }
 
 
 
 void GameObject::onMatrixChanged()
 {
-	D3DXMatrixMultiply(&mResMatrix, &mScaleMatrix, &mPosMatrix);
+	if (mParent == nullptr)
+	{
+		mWorldPosMatrix = mLocalPosMatrix;
+		mWorldScaleMatrix = mLocalScaleMatrix;
+	}
+	D3DXMatrixMultiply(&mWorldResMatrix, &mWorldScaleMatrix, &mWorldPosMatrix);
 	for (auto curComponent : mComponents)
 	{
-		curComponent->onMatrixChanged(&mResMatrix);
+		curComponent->onMatrixChanged(&mWorldResMatrix);
+	}
+
+	for (auto curChild : mChilds)
+	{
+		curChild->parentMatrixChanged(&mWorldPosMatrix, &mWorldScaleMatrix);
 	}
 }
 
-void GameObject::setPos(float x, float y, float z)
+void GameObject::setLocalPos(float x, float y, float z)
 {
-	mPosMatrix._41 = x;
-	mPosMatrix._42 = y;
-	mPosMatrix._43 = z;
+	mLocalPosMatrix._41 = x;
+	mLocalPosMatrix._42 = y;
+	mLocalPosMatrix._43 = z;
 
 	onMatrixChanged();
 }
 
-void GameObject::setPos(D3DXVECTOR3 pos)
+void GameObject::setLocalPos(D3DXVECTOR3 pos)
 {
-	mPosMatrix._41 = pos.x;
-	mPosMatrix._42 = pos.y;
-	mPosMatrix._43 = pos.z;
+	mLocalPosMatrix._41 = pos.x;
+	mLocalPosMatrix._42 = pos.y;
+	mLocalPosMatrix._43 = pos.z;
 
 	onMatrixChanged();
 }
 
-void GameObject::setPosX(float x)
+void GameObject::setLocalPosX(float x)
 {
-	mPosMatrix._41 = x;
+	mLocalPosMatrix._41 = x;
 	onMatrixChanged();
 }
 
-void GameObject::setPosY(float y)
+void GameObject::setLocalPosY(float y)
 {
-	mPosMatrix._42 = y;
+	mLocalPosMatrix._42 = y;
 	onMatrixChanged();
 }
 
-void GameObject::addPos(float x, float y, float z)
+void GameObject::addLocalPos(float x, float y, float z)
 {
-	mPosMatrix._41 += x;
-	mPosMatrix._42 += y;
-	mPosMatrix._43 += z;
+	mLocalPosMatrix._41 += x;
+	mLocalPosMatrix._42 += y;
+	mLocalPosMatrix._43 += z;
 
 	onMatrixChanged();
 }
 
-void GameObject::addPosX(float x)
+void GameObject::addLocalPosX(float x)
 {
-	mPosMatrix._41 += x;
+	mLocalPosMatrix._41 += x;
 	onMatrixChanged();
 }
 
-void GameObject::addPosY(float y)
+void GameObject::addLocalPosY(float y)
 {
-	mPosMatrix._42 += y;
+	mLocalPosMatrix._42 += y;
 	onMatrixChanged();
 }
 
-void GameObject::setScale(float x, float y, float z)
+void GameObject::setLocalScale(float x, float y, float z)
 {
-	mScaleMatrix._11 = x;
-	mScaleMatrix._22 = y;
-	mScaleMatrix._33 = z;
+	mLocalScaleMatrix._11 = x;
+	mLocalScaleMatrix._22 = y;
+	mLocalScaleMatrix._33 = z;
 	onMatrixChanged();
 }
 
 D3DXVECTOR3 GameObject::getPos()const
 {
 	D3DXVECTOR3 pos;
-	pos.x = mPosMatrix._41;
-	pos.y = mPosMatrix._42;
-	pos.z = mPosMatrix._43;
+	pos.x = mLocalPosMatrix._41;
+	pos.y = mLocalPosMatrix._42;
+	pos.z = mLocalPosMatrix._43;
 	return pos;
 }
 
@@ -131,12 +152,31 @@ void GameObject::clean()
 	}
 }
 
-float GameObject::getPosX()const
+float GameObject::getLocalPosX()const
 {
-	return mPosMatrix._41;
+	return mLocalPosMatrix._41;
 }
 
-float GameObject::getPosY()const
+float GameObject::getLocalPosY()const
 {
-	return mPosMatrix._42;
+	return mLocalPosMatrix._42;
+}
+
+void GameObject::addChild(std::shared_ptr<GameObject> child)
+{
+	child->setParent(this);
+	mChilds.push_back(child);
+}
+
+void GameObject::setParent(GameObject* parent)
+{
+	mParent = parent;
+}
+
+void GameObject::parentMatrixChanged(const D3DXMATRIXA16 * mParentPos, const D3DXMATRIXA16* mParentScale)
+{
+	D3DXMatrixMultiply(&mWorldScaleMatrix, &mLocalScaleMatrix, mParentScale);
+	D3DXMatrixMultiply(&mWorldPosMatrix, &mLocalPosMatrix, mParentPos);
+
+	onMatrixChanged();
 }

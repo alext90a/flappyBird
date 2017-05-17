@@ -11,14 +11,11 @@ BoundingBox::~BoundingBox()
 {
 }
 
-void BoundingBox::setTopLeft(D3DXVECTOR3 topLeft)
+void BoundingBox::init(D3DXVECTOR3 topLeft, D3DXVECTOR3 bottomRight, std::vector<const BoundingBox*>& collisionLayer)
 {
 	mLocalTopLeft = topLeft;
-}
-
-void BoundingBox::setBottomRight(D3DXVECTOR3 bottomRight)
-{
 	mLocalBottomRight = bottomRight;
+	collisionLayer.push_back(this);
 }
 
 const D3DXVECTOR3* const BoundingBox::getTopLeft()const

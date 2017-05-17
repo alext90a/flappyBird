@@ -113,27 +113,49 @@ HRESULT Game::initGeometry()
 	mPlayerBounds = std::make_shared<BoundingBox>();
 	mPlayer->addComponent(mPlayerBounds);
 
+	
 	mGameObjects.push_back(mPlayer);
+	//mGameObjects.push_back(playerChild);
 	//==============================================
-
+	
 	for (int i = 0; i < kMaxBarriers; ++i)
 	{
-		std::shared_ptr<GameObject> barrier = std::make_shared<GameObject>();
-		barrier->init(g_pd3dDevice);
+		std::shared_ptr<GameObject> barrierParent = std::make_shared<GameObject>();
+		barrierParent->init(g_pd3dDevice);
+
+		std::shared_ptr<GameObject> barrierBottom = std::make_shared<GameObject>();
+		barrierBottom->init(g_pd3dDevice);
 		std::shared_ptr<Renderable> enemySprite = std::make_shared<Renderable>();
 		std::shared_ptr<Geometry> geom = mGeometryManager->getGeometry(GEOMETRY::POLY_1X3, g_pd3dDevice);
 		enemySprite->init(geom, mEnemyTexture);
-		barrier->addComponent(enemySprite);
+		barrierBottom->addComponent(enemySprite);
 
 		std::shared_ptr<BoundingBox> box = std::make_shared<BoundingBox>();
-		box->setTopLeft(geom->getTopLeft());
-		box->setBottomRight(geom->getBottomRight());
-		box->setBottomRight(D3DXVECTOR3(1.f / 2.f, -3.f / 2.f, 0.0f));
-		barrier->addComponent(box);
-		mCollideableStore.push_back(box.get());
-		barrier->setScale(2.0f, 2.0f, 1.0f);
-		mObjectsReserve.push_back(barrier);
+		box->init(geom->getTopLeft(), geom->getBottomRight(), mCollideableStore);
+		barrierBottom->addComponent(box);
+		barrierBottom->setLocalScale(2.0f, 2.0f, 1.0f);
+		barrierBottom->setLocalPosY(0.0f);
+
+		std::shared_ptr<GameObject> barrierTop = std::make_shared<GameObject>();
+		barrierTop->init(g_pd3dDevice);
+		std::shared_ptr<Renderable> renderableTop = std::make_shared<Renderable>();
+		std::shared_ptr<Geometry> geomTop = mGeometryManager->getGeometry(GEOMETRY::POLY_1X2, g_pd3dDevice);
+		renderableTop->init(geomTop, mEnemyTexture);
+		barrierTop->addComponent(renderableTop);
+		box = std::make_shared<BoundingBox>();
+		box->init(geomTop->getTopLeft(), geomTop->getBottomRight(), mCollideableStore);
+		barrierTop->addComponent(box);
+		barrierTop->setLocalScale(2.0f, 2.0f, 1.0f);
+		barrierTop->setLocalPosY(0.0f);
+
+		barrierParent->addChild(barrierBottom);
+		barrierParent->addChild(barrierTop);
+		barrierParent->setLocalPosY(-9.0f);
+		barrierBottom->setLocalPosY(3.0f);
+		barrierTop->setLocalPosY(15.0f);
+		mObjectsReserve.push_back(barrierParent);
 	}
+	
 	
 
 	SetRect(&textbox, 0, 0, 640, 480);
@@ -166,8 +188,8 @@ void Game::createBackground()
 		std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
 		renderable->init(mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice), texture);
 		background->addComponent(renderable);
-		background->setScale(kBackgroundWidth, kBackgroundWidth, 1.0f);
-		background->addPos(startX + 2.0f* halfWidth*(float)i, 0.0f, 1.0f);
+		background->setLocalScale(kBackgroundWidth, kBackgroundWidth, 1.0f);
+		background->addLocalPos(startX + 2.0f* halfWidth*(float)i, 0.0f, 1.0f);
 		
 		mBackgroundObjects.push_back(background);
 	}
@@ -187,8 +209,8 @@ void Game::SetupMatrices()
 	// a point to lookat, and a direction for which way is up. Here, we set the
 	// eye five units back along the z-axis and up three units, look at the
 	// origin, and define "up" to be in the y-direction.
-	D3DXVECTOR3 vEyePt(mPlayer->getPosX(), 0.0f, -25.0f);
-	D3DXVECTOR3 vLookatPt(mPlayer->getPosX(), 0.0f, 0.0f);
+	D3DXVECTOR3 vEyePt(mPlayer->getLocalPosX(), 0.0f, -25.0f);
+	D3DXVECTOR3 vLookatPt(mPlayer->getLocalPosX(), 0.0f, 0.0f);
 	D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
 	D3DXMATRIXA16 matView;
 	D3DXMatrixLookAtLH(&matView, &vEyePt, &vLookatPt, &vUpVec);
@@ -218,7 +240,7 @@ void Game::update()
 		{
 			auto curObj = mObjectsReserve.front();
 			mObjectsReserve.pop_front();
-			curObj->setPosX(mPlayer->getPosX() + kBarrierXStartOffset);
+			curObj->setLocalPosX(mPlayer->getLocalPosX() + kBarrierXStartOffset);
 			mActiveObject.insert(curObj);
 			mTimeSinceLastBarrierSpawn = 0.0f;
 		}
@@ -257,40 +279,42 @@ void Game::render()
 	{
 		
 
-		mPlayer->addPosX(kPlayerSpeed * mDeltaTime);
+		mPlayer->addLocalPosX(kPlayerSpeed * mDeltaTime);
 		// Setup the world, view, and projection matrices
 		SetupMatrices();
 		
 		
-		for (int i=0; i < mBackgroundObjects.size(); ++i)
+		for (unsigned int i=0; i < mBackgroundObjects.size(); ++i)
 		{
 			
 			float displacement = kPlayerSpeed * mDeltaTime;
-			mBackgroundObjects[i]->addPosX(displacement);
+			mBackgroundObjects[i]->addLocalPosX(displacement);
 
 			
 			mBackgroundObjects[i]->draw();
 
 		}
-
+		
+		
 		std::list<std::shared_ptr<GameObject>> removeList;
 		for (auto curObj : mActiveObject)
 		{
 			
 			curObj->draw();
-			if ((mPlayer->getPosX() - curObj->getPosX()) >= kObjLiveMaxDistance)
+			if ((mPlayer->getLocalPosX() - curObj->getLocalPosX()) >= kObjLiveMaxDistance)
 			{
 				removeList.push_back(curObj);
 			}
 
 			
 		}
+		
 		for (auto curRemove : removeList)
 		{
 			mActiveObject.erase(curRemove);
 			mObjectsReserve.push_back(curRemove);
 		}
-
+		
 		for (auto curObj : mGameObjects)
 		{
 			curObj->draw();
@@ -317,22 +341,22 @@ void Game::processInput(WPARAM wParam)
 	
 	if (wParam == VK_UP)
 	{
-		mPlayer->addPos(0.0f, 1.0f, 0.0f);
+		mPlayer->addLocalPos(0.0f, 1.0f, 0.0f);
 	}
 
 	else if (wParam == VK_DOWN)
 	{
-		mPlayer->addPos(0.0f, -1.0f, 0.0f);
+		mPlayer->addLocalPos(0.0f, -1.0f, 0.0f);
 	}
 
 	else if (wParam == VK_LEFT)
 	{
-		mPlayer->addPos(-1.0f, 0.0f, 0.0f);
+		mPlayer->addLocalPos(-1.0f, 0.0f, 0.0f);
 	}
 
 	else if (wParam == VK_RIGHT)
 	{
-		mPlayer->addPos(1.0f, 0.0f, 0.0f);
+		mPlayer->addLocalPos(1.0f, 0.0f, 0.0f);
 	}
 	else
 	{

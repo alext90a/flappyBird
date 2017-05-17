@@ -9,28 +9,36 @@ public:
 	void update();
 	void draw();
 	void clean();
+	void addChild(std::shared_ptr<GameObject> child);
 
-	void setPos(float x, float y, float z);
-	void setPos(D3DXVECTOR3 pos);
-	void setPosX(float x);
-	void setPosY(float y);
-	void addPos(float x, float y, float z);
-	void addPosX(float x);
-	void addPosY(float y);
-	void setScale(float x, float y, float z);
+	void setLocalPos(float x, float y, float z);
+	void setLocalPos(D3DXVECTOR3 pos);
+	void setLocalPosX(float x);
+	void setLocalPosY(float y);
+	void addLocalPos(float x, float y, float z);
+	void addLocalPosX(float x);
+	void addLocalPosY(float y);
+	void setLocalScale(float x, float y, float z);
 	D3DXVECTOR3 getPos()const;
-	float getPosX()const;
-	float getPosY()const;
-
+	float getLocalPosX()const;
+	float getLocalPosY()const;
+	void setParent(GameObject* parent);
 protected:
 	void onMatrixChanged();
 
+	void parentMatrixChanged(const D3DXMATRIXA16 * mParentPos, const D3DXMATRIXA16* mParentScale);
+
 protected:
-	D3DXMATRIXA16 mPosMatrix;
-	D3DXMATRIXA16 mScaleMatrix;
-	D3DXMATRIXA16 mResMatrix;
+	D3DXMATRIXA16 mWorldPosMatrix;
+	D3DXMATRIXA16 mWorldScaleMatrix;
+	D3DXMATRIXA16 mWorldResMatrix;
+
+	D3DXMATRIXA16 mLocalPosMatrix;
+	D3DXMATRIXA16 mLocalScaleMatrix;
+	D3DXMATRIXA16 mLocalResMatrix;
 	std::list<std::shared_ptr<IComponent>> mComponents;
 	std::list<std::shared_ptr<GameObject>> mChilds;
+	GameObject* mParent = nullptr;
 	LPDIRECT3DDEVICE9       g_pd3dDevice = nullptr;
 };
 

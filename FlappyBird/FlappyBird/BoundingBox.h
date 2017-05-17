@@ -5,8 +5,11 @@ public:
 	BoundingBox();
 	~BoundingBox();
 
+	void init(D3DXVECTOR3 topLeft, D3DXVECTOR3 bottomRight, std::vector<const BoundingBox*>& collisionLayer);
+	/*
 	void setTopLeft(D3DXVECTOR3 topLeft);
 	void setBottomRight(D3DXVECTOR3 bottomRight);
+	*/
 
 	const D3DXVECTOR3* const getTopLeft()const;
 	const D3DXVECTOR3* const getBottomRight()const;
