@@ -42,6 +42,7 @@ HRESULT Game::init(HWND hWnd)
 
 void Game::close()
 {
+	mGeometryManager->clean();
 	mTextureManager->clean();
 	
 	for (auto curObj : mGameObjects)
@@ -105,8 +106,8 @@ HRESULT Game::initGeometry()
 	mPlayer = std::make_shared<GameObject>();
 	mPlayer->init(g_pd3dDevice);
 	
-	std::shared_ptr<Sprite> playerSprite = std::make_shared<Sprite>();
-	playerSprite->init(g_pd3dDevice, mPlayerTexture);
+	std::shared_ptr<Renderable> playerSprite = std::make_shared<Renderable>();
+	playerSprite->init(mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice), mPlayerTexture);
 	mPlayer->addComponent(playerSprite);
 
 	mPlayerBounds = std::make_shared<BoundingBox>();
@@ -119,8 +120,8 @@ HRESULT Game::initGeometry()
 	{
 		std::shared_ptr<GameObject> barrier = std::make_shared<GameObject>();
 		barrier->init(g_pd3dDevice);
-		std::shared_ptr<Sprite> enemySprite = std::make_shared<Sprite>();
-		enemySprite->init(g_pd3dDevice, mEnemyTexture);
+		std::shared_ptr<Renderable> enemySprite = std::make_shared<Renderable>();
+		enemySprite->init(mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice), mEnemyTexture);
 		barrier->addComponent(enemySprite);
 
 		std::shared_ptr<BoundingBox> box = std::make_shared<BoundingBox>();
@@ -158,9 +159,9 @@ void Game::createBackground()
 
 		std::shared_ptr<GameObject> background = std::make_shared<GameObject>();
 		background->init(g_pd3dDevice);
-		std::shared_ptr<Sprite> geometry = std::make_shared<Sprite>();
-		geometry->init(g_pd3dDevice, texture);
-		background->addComponent(geometry);
+		std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
+		renderable->init(mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice), texture);
+		background->addComponent(renderable);
 		background->addPos(startX + 2.0f* halfWidth*(float)i, 0.0f, 1.0f);
 		background->setScale(halfWidth, halfWidth, 1.0f);
 		mBackgroundObjects.push_back(background);

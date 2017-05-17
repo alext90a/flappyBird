@@ -31,6 +31,7 @@ protected:
 	LPD3DXFONT				g_Font = NULL;
 	//LPDIRECT3DTEXTURE9      g_pTexture = NULL; // Our texture
 	std::unique_ptr<TextureManager> mTextureManager = std::make_unique<TextureManager>();
+	std::unique_ptr<GeometryManager> mGeometryManager = std::make_unique<GeometryManager>();
 	std::shared_ptr<GameObject> mPlayer = nullptr;
 	std::shared_ptr<BoundingBox> mPlayerBounds = nullptr;
 	

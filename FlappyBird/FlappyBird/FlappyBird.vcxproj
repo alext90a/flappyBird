@@ -153,6 +153,8 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameConstants.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="Geometry.h" />
+    <ClInclude Include="GeometryManager.h" />
     <ClInclude Include="IComponent.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Sprite.h" />
@@ -166,6 +168,8 @@
     <ClCompile Include="FlappyBird.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="Geometry.cpp" />
+    <ClCompile Include="GeometryManager.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

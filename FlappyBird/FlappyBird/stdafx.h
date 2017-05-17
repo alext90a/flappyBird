@@ -31,6 +31,8 @@
 #pragma warning( default : 4996 )
 
 #include "IComponent.h"
+#include "Geometry.h"
+#include "GeometryManager.h"
 #include "GameConstants.h"
 #include "BoundingBox.h"
 #include "Texture.h"
