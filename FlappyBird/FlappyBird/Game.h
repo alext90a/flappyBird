@@ -40,7 +40,8 @@ protected:
 	std::string mTestText = "Hello word!";
 	RECT textbox;
 
-	std::vector<const BoundingBox*> mCollideableStore;
+	std::vector<const BoundingBox*> mCollideableLayer;
+	std::vector<const BoundingBox*> mBonusLayer;
 
 	std::vector<std::shared_ptr<GameObject>> mGameObjects;
 	std::vector<std::shared_ptr<GameObject>> mBackgroundObjects;

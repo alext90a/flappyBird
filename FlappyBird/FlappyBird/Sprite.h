@@ -3,7 +3,7 @@
 
 
 
-class Renderable : public IComponent
+class Renderable : public Component
 {
 public:
 

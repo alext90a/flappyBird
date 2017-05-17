@@ -30,7 +30,7 @@
 #include <strsafe.h>
 #pragma warning( default : 4996 )
 
-#include "IComponent.h"
+#include "Component.h"
 #include "Geometry.h"
 #include "GeometryManager.h"
 #include "GameConstants.h"

@@ -1,6 +1,7 @@
 #pragma once
 
 #define D3DFVF_CUSTOMVERTEX (D3DFVF_XYZ|D3DFVF_DIFFUSE|D3DFVF_TEX1)
+
 class Geometry
 {
 	struct CUSTOMVERTEX

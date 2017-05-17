@@ -1,5 +1,5 @@
 #pragma once
-class BoundingBox : public IComponent
+class BoundingBox : public Component
 {
 public:
 	BoundingBox();

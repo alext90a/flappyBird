@@ -23,13 +23,18 @@ bool GameObject::init(LPDIRECT3DDEVICE9 device)
 	return true;
 }
 
-void GameObject::addComponent(std::shared_ptr<IComponent> component)
+void GameObject::addComponent(std::shared_ptr<Component> component)
 {
+	component->setGameObject(this);
 	mComponents.push_back(component);
 }
 
 void GameObject::draw()
 {
+	if (!mIsEnabled)
+	{
+		return;
+	}
 	g_pd3dDevice->SetTransform(D3DTS_WORLD, &mWorldResMatrix);
 	for (auto curComponent : mComponents)
 	{
@@ -44,6 +49,10 @@ void GameObject::draw()
 
 void GameObject::update()
 {
+	if (!mIsEnabled)
+	{
+		return;
+	}
 	for (auto curComponent : mComponents)
 	{
 		curComponent->update();
@@ -59,10 +68,19 @@ void GameObject::update()
 
 void GameObject::onMatrixChanged()
 {
+	if (!mIsEnabled)
+	{
+		return;
+	}
 	if (mParent == nullptr)
 	{
 		mWorldPosMatrix = mLocalPosMatrix;
 		mWorldScaleMatrix = mLocalScaleMatrix;
+	}
+	else
+	{
+		D3DXMatrixMultiply(&mWorldPosMatrix, &mLocalPosMatrix, mParent->getWorldPosMatrix());
+		D3DXMatrixMultiply(&mWorldScaleMatrix, &mLocalScaleMatrix, mParent->getWorldScaleMatrix());
 	}
 	D3DXMatrixMultiply(&mWorldResMatrix, &mWorldScaleMatrix, &mWorldPosMatrix);
 	for (auto curComponent : mComponents)
@@ -75,6 +93,24 @@ void GameObject::onMatrixChanged()
 		curChild->parentMatrixChanged(&mWorldPosMatrix, &mWorldScaleMatrix);
 	}
 }
+
+void GameObject::parentMatrixChanged(const D3DXMATRIXA16 * mParentPos, const D3DXMATRIXA16* mParentScale)
+{
+	D3DXMatrixMultiply(&mWorldScaleMatrix, &mLocalScaleMatrix, mParentScale);
+	D3DXMatrixMultiply(&mWorldPosMatrix, &mLocalPosMatrix, mParentPos);
+
+	D3DXMatrixMultiply(&mWorldResMatrix, &mWorldScaleMatrix, &mWorldPosMatrix);
+	for (auto curComponent : mComponents)
+	{
+		curComponent->onMatrixChanged(&mWorldResMatrix);
+	}
+
+	for (auto curChild : mChilds)
+	{
+		curChild->parentMatrixChanged(&mWorldPosMatrix, &mWorldScaleMatrix);
+	}
+}
+
 
 void GameObject::setLocalPos(float x, float y, float z)
 {
@@ -173,10 +209,28 @@ void GameObject::setParent(GameObject* parent)
 	mParent = parent;
 }
 
-void GameObject::parentMatrixChanged(const D3DXMATRIXA16 * mParentPos, const D3DXMATRIXA16* mParentScale)
+const D3DXMATRIXA16* const GameObject::getWorldPosMatrix()const
 {
-	D3DXMatrixMultiply(&mWorldScaleMatrix, &mLocalScaleMatrix, mParentScale);
-	D3DXMatrixMultiply(&mWorldPosMatrix, &mLocalPosMatrix, mParentPos);
-
-	onMatrixChanged();
+	return &mWorldPosMatrix;
 }
+
+const D3DXMATRIXA16* const GameObject::getWorldScaleMatrix()const
+{
+	return &mWorldScaleMatrix;
+}
+
+bool GameObject::isEnabled()const
+{
+	return mIsEnabled;
+}
+
+void GameObject::setEnabled(bool enabled)
+{
+	mIsEnabled = enabled;
+	for (auto curChild : mChilds)
+	{
+		curChild->setEnabled(enabled);
+	}
+}
+
+
