@@ -16,6 +16,8 @@ bool GameObject::init(LPDIRECT3DDEVICE9 device)
 	g_pd3dDevice = device;
 	D3DXMatrixIdentity(&mPosMatrix);
 	D3DXMatrixIdentity(&mScaleMatrix);
+
+
 	
 	return true;
 }

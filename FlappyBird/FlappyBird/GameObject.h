@@ -29,7 +29,8 @@ protected:
 	D3DXMATRIXA16 mPosMatrix;
 	D3DXMATRIXA16 mScaleMatrix;
 	D3DXMATRIXA16 mResMatrix;
-	std::vector<std::shared_ptr<IComponent>> mComponents;
+	std::list<std::shared_ptr<IComponent>> mComponents;
+	std::list<std::shared_ptr<GameObject>> mChilds;
 	LPDIRECT3DDEVICE9       g_pd3dDevice = nullptr;
 };
 
