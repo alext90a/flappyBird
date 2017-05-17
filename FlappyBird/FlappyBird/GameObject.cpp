@@ -71,6 +71,18 @@ void GameObject::setPos(D3DXVECTOR3 pos)
 	onMatrixChanged();
 }
 
+void GameObject::setPosX(float x)
+{
+	mPosMatrix._41 = x;
+	onMatrixChanged();
+}
+
+void GameObject::setPosY(float y)
+{
+	mPosMatrix._42 = y;
+	onMatrixChanged();
+}
+
 void GameObject::addPos(float x, float y, float z)
 {
 	mPosMatrix._41 += x;

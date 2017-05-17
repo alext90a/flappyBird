@@ -142,6 +142,7 @@ void Game::createBackground()
 	for (int i = 0; i < 3; ++i)
 	{
 		std::shared_ptr<Texture> texture = mTextureManager->createTexture("png\\BG.png");
+
 		std::shared_ptr<GameObject> background = std::make_shared<GameObject>();
 		background->init(g_pd3dDevice);
 		std::shared_ptr<Sprite> geometry = std::make_shared<Sprite>();
@@ -223,12 +224,30 @@ void Game::render()
 		// Setup the world, view, and projection matrices
 		SetupMatrices();
 
-
-		for (auto curObj : mBackgroundObjects)
+		
+		for (int i=0; i < mBackgroundObjects.size(); ++i)
 		{
-			curObj->addPosX(kBackSpeed * mDeltaTime);
-			curObj->draw();
+			
+			float displacement = kBackSpeed * mDeltaTime;
+			mBackgroundObjects[i]->addPosX(displacement);
+			if (mBackgroundObjects[i]->getPosX() < kLeftmostX)
+			{
+				int prevIndex = (i +mBackgroundObjects.size() - 1) % mBackgroundObjects.size();
+				if (prevIndex > i)
+				{
+					mBackgroundObjects[i]->setPosX(kBackgroundWidth + mBackgroundObjects[prevIndex]->getPosX() + kBackSpeed *mDeltaTime);
+				}
+				else
+				{
+					mBackgroundObjects[i]->setPosX(kBackgroundWidth + mBackgroundObjects[prevIndex]->getPosX());
+				}
+				
+			}
+			
+			mBackgroundObjects[i]->draw();
+
 		}
+		
 
 		for (auto curObj : mGameObjects)
 		{

@@ -12,6 +12,8 @@ public:
 
 	void setPos(float x, float y, float z);
 	void setPos(D3DXVECTOR3 pos);
+	void setPosX(float x);
+	void setPosY(float y);
 	void addPos(float x, float y, float z);
 	void addPosX(float x);
 	void addPosY(float y);
