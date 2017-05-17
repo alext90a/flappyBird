@@ -80,6 +80,18 @@ void GameObject::addPos(float x, float y, float z)
 	onMatrixChanged();
 }
 
+void GameObject::addPosX(float x)
+{
+	mPosMatrix._41 += x;
+	onMatrixChanged();
+}
+
+void GameObject::addPosY(float y)
+{
+	mPosMatrix._42 += y;
+	onMatrixChanged();
+}
+
 void GameObject::setScale(float x, float y, float z)
 {
 	mScaleMatrix._11 = x;
@@ -103,4 +115,14 @@ void GameObject::clean()
 	{
 		curComponent->clean();
 	}
+}
+
+float GameObject::getPosX()const
+{
+	return mPosMatrix._41;
+}
+
+float GameObject::getPosY()const
+{
+	return mPosMatrix._42;
 }

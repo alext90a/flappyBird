@@ -18,9 +18,11 @@
 #include <tchar.h>
 #include <string>
 #include <vector>
+#include <map>
 #include <memory>
 #include <list>
 #include <functional>
+#include <Mmsystem.h>
 #include <d3dx9.h>
 #pragma warning( disable : 4996 ) // disable deprecated warning 
 #include <strsafe.h>
@@ -29,8 +31,9 @@
 #include "IComponent.h"
 #include "GameConstants.h"
 #include "BoundingBox.h"
-#include "Sprite.h"
 #include "Texture.h"
+#include "Sprite.h"
+
 #include "TextureManager.h"
 #include "GameObject.h"
 #include "Game.h"

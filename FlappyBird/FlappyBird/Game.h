@@ -12,12 +12,15 @@ public:
 	void processInput(WPARAM wParam);
 	void close();
 
+
+	static float mDeltaTime;
 protected:
 	HRESULT initD3D(HWND hWnd);
 	HRESULT initGeometry();
 	void SetupMatrices();
 
 	void checkCollideables();
+	void createBackground();
 
 protected:
 	LPDIRECT3D9             g_pD3D = NULL; // Used to create the D3DDevice
@@ -26,9 +29,10 @@ protected:
 	LPD3DXFONT				g_Font = NULL;
 	//LPDIRECT3DTEXTURE9      g_pTexture = NULL; // Our texture
 	std::unique_ptr<TextureManager> mTextureManager = std::make_unique<TextureManager>();
-	std::shared_ptr<Texture> mBananaTexture = nullptr;
 	std::shared_ptr<GameObject> mPlayer = nullptr;
 	std::shared_ptr<BoundingBox> mPlayerBounds = nullptr;
+	
+	
 
 	std::string mTestText = "Hello word!";
 	RECT textbox;
@@ -36,5 +40,8 @@ protected:
 	std::vector<const BoundingBox*> mCollideableStore;
 
 	std::vector<std::shared_ptr<GameObject>> mGameObjects;
+	std::vector<std::shared_ptr<GameObject>> mBackgroundObjects;
+
+	static DWORD mLastUpdateTime;
 };
 

@@ -12,6 +12,6 @@ public:
 	void clean();
 protected:
 	LPDIRECT3DDEVICE9       g_pd3dDevice = NULL; // Our rendering device
-	std::list < std::shared_ptr<Texture>> mUsedTexture;
+	std::map <std::string, std::shared_ptr<Texture>> mUsedTexture;
 };
 

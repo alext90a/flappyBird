@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "Game.h"
 
+float Game::mDeltaTime = 0.0f;
+DWORD Game::mLastUpdateTime = 0;
 
 Game::Game()
 {
-	mGameObjects.reserve(GameConstants::kMaxGameObjects);
+	mGameObjects.reserve(kMaxGameObjects);
 }
 
 
@@ -14,6 +16,7 @@ Game::~Game()
 
 HRESULT Game::init(HWND hWnd)
 {
+	
 	if (FAILED(initD3D(hWnd)))
 	{
 		return E_FAIL;
@@ -22,6 +25,7 @@ HRESULT Game::init(HWND hWnd)
 	{
 		return E_FAIL;
 	}
+	mLastUpdateTime = timeGetTime();
 	return S_OK;
 }
 
@@ -79,16 +83,19 @@ HRESULT Game::initD3D(HWND hWnd)
 
 HRESULT Game::initGeometry()
 {
-	mCollideableStore.reserve(GameConstants::kCollideable);
+	mCollideableStore.reserve(kCollideable);
 
 	mTextureManager->init(g_pd3dDevice);
-	mBananaTexture = mTextureManager->createTexture("Tree.png");
+	std::shared_ptr<Texture> mPlayerTexture = mTextureManager->createTexture("Tree.png");
+	std::shared_ptr<Texture> mEnemyTexture = mTextureManager->createTexture("png\\Objects\\Crate.png");
 
+	createBackground();
 	//create player
 	mPlayer = std::make_shared<GameObject>();
 	mPlayer->init(g_pd3dDevice);
+	
 	std::shared_ptr<Sprite> playerSprite = std::make_shared<Sprite>();
-	playerSprite->init(g_pd3dDevice);
+	playerSprite->init(g_pd3dDevice, mPlayerTexture);
 	mPlayer->addComponent(playerSprite);
 
 	mPlayerBounds = std::make_shared<BoundingBox>();
@@ -100,9 +107,9 @@ HRESULT Game::initGeometry()
 	
 	std::shared_ptr<GameObject> enemy = std::make_shared<GameObject>();
 	enemy->init(g_pd3dDevice);
-	playerSprite = std::make_shared<Sprite>();
-	playerSprite->init(g_pd3dDevice);
-	enemy->addComponent(playerSprite);
+	std::shared_ptr<Sprite> enemySprite = std::make_shared<Sprite>();
+	enemySprite->init(g_pd3dDevice, mEnemyTexture);
+	enemy->addComponent(enemySprite);
 	
 	std::shared_ptr<BoundingBox> box = std::make_shared<BoundingBox>();
 	enemy->addComponent(box);
@@ -126,6 +133,26 @@ HRESULT Game::initGeometry()
 		&g_Font);    // the font object
 
 	return S_OK;
+}
+
+void Game::createBackground()
+{
+	float startX = -kBackgroundWidth;
+	float halfWidth = kBackgroundWidth/2.0f;
+	for (int i = 0; i < 3; ++i)
+	{
+		std::shared_ptr<Texture> texture = mTextureManager->createTexture("png\\BG.png");
+		std::shared_ptr<GameObject> background = std::make_shared<GameObject>();
+		background->init(g_pd3dDevice);
+		std::shared_ptr<Sprite> geometry = std::make_shared<Sprite>();
+		geometry->init(g_pd3dDevice, texture);
+		background->addComponent(geometry);
+		background->addPos(startX + 2.0f* halfWidth*(float)i, 0.0f, 1.0f);
+		background->setScale(halfWidth, halfWidth, 1.0f);
+		mBackgroundObjects.push_back(background);
+	}
+	
+
 }
 
 void Game::SetupMatrices()
@@ -189,10 +216,19 @@ void Game::render()
 	// Begin the scene
 	if (SUCCEEDED(g_pd3dDevice->BeginScene()))
 	{
+		DWORD curTime = timeGetTime();
+		mDeltaTime = (curTime - mLastUpdateTime)/1000.0f;
+		mLastUpdateTime = curTime;
+
 		// Setup the world, view, and projection matrices
 		SetupMatrices();
 
-		mBananaTexture->draw();
+
+		for (auto curObj : mBackgroundObjects)
+		{
+			curObj->addPosX(kBackSpeed * mDeltaTime);
+			curObj->draw();
+		}
 
 		for (auto curObj : mGameObjects)
 		{

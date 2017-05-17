@@ -13,8 +13,12 @@ public:
 	void setPos(float x, float y, float z);
 	void setPos(D3DXVECTOR3 pos);
 	void addPos(float x, float y, float z);
+	void addPosX(float x);
+	void addPosY(float y);
 	void setScale(float x, float y, float z);
 	D3DXVECTOR3 getPos()const;
+	float getPosX()const;
+	float getPosY()const;
 
 protected:
 	void onMatrixChanged();

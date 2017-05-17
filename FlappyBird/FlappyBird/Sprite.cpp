@@ -11,9 +11,10 @@ Sprite::~Sprite()
 {
 }
 
-HRESULT Sprite::init(LPDIRECT3DDEVICE9 device)
+HRESULT Sprite::init(LPDIRECT3DDEVICE9 device, std::shared_ptr<Texture> texture)
 {
 	g_pd3dDevice = device;
+	mTexture = texture;
 
 	// Create the vertex buffer.
 	if (FAILED(g_pd3dDevice->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX),
@@ -75,8 +76,6 @@ HRESULT Sprite::init(LPDIRECT3DDEVICE9 device)
 	memcpy(pVoid, indices, sizeof(indices));
 	g_pIB->Unlock();
 
-	mBoundingBox.setTopLeft(D3DXVECTOR3(-1.0f, 1.0f, 0.0f));
-	mBoundingBox.setBottomRight(D3DXVECTOR3(1.0f, -1.0f, 0.0f));
 	
 
 
@@ -86,7 +85,7 @@ HRESULT Sprite::init(LPDIRECT3DDEVICE9 device)
 void Sprite::draw()
 {
 
-	
+	mTexture->draw();
 
 	g_pd3dDevice->SetStreamSource(0, g_pVB, 0, sizeof(CUSTOMVERTEX));
 	g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
@@ -102,7 +101,4 @@ void Sprite::clean()
 }
 
 
-const BoundingBox* const Sprite::getBoundBox()const 
-{
-	return &mBoundingBox;
-}
+
