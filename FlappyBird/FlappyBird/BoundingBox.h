@@ -18,5 +18,8 @@ public:
 protected:
 	D3DXVECTOR3 mTopLeft = D3DXVECTOR3(-1.0f, 1.0f, 0.0f);
 	D3DXVECTOR3 mBottomRight = D3DXVECTOR3(1.0f, -1.0f, 0.0f);
+
+	D3DXVECTOR3 mLocalTopLeft = D3DXVECTOR3(-0.5f, 0.5f, 0.0f);
+	D3DXVECTOR3 mLocalBottomRight = D3DXVECTOR3(0.5f, -0.5f, 0.0f);
 };
 

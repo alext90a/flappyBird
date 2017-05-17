@@ -121,10 +121,14 @@ HRESULT Game::initGeometry()
 		std::shared_ptr<GameObject> barrier = std::make_shared<GameObject>();
 		barrier->init(g_pd3dDevice);
 		std::shared_ptr<Renderable> enemySprite = std::make_shared<Renderable>();
-		enemySprite->init(mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice), mEnemyTexture);
+		std::shared_ptr<Geometry> geom = mGeometryManager->getGeometry(GEOMETRY::POLY_1X3, g_pd3dDevice);
+		enemySprite->init(geom, mEnemyTexture);
 		barrier->addComponent(enemySprite);
 
 		std::shared_ptr<BoundingBox> box = std::make_shared<BoundingBox>();
+		box->setTopLeft(geom->getTopLeft());
+		box->setBottomRight(geom->getBottomRight());
+		box->setBottomRight(D3DXVECTOR3(1.f / 2.f, -3.f / 2.f, 0.0f));
 		barrier->addComponent(box);
 		mCollideableStore.push_back(box.get());
 		barrier->setScale(2.0f, 2.0f, 1.0f);
@@ -162,8 +166,9 @@ void Game::createBackground()
 		std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
 		renderable->init(mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice), texture);
 		background->addComponent(renderable);
+		background->setScale(kBackgroundWidth, kBackgroundWidth, 1.0f);
 		background->addPos(startX + 2.0f* halfWidth*(float)i, 0.0f, 1.0f);
-		background->setScale(halfWidth, halfWidth, 1.0f);
+		
 		mBackgroundObjects.push_back(background);
 	}
 	

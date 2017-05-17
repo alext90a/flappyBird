@@ -13,12 +13,12 @@ BoundingBox::~BoundingBox()
 
 void BoundingBox::setTopLeft(D3DXVECTOR3 topLeft)
 {
-	mTopLeft = topLeft;
+	mLocalTopLeft = topLeft;
 }
 
 void BoundingBox::setBottomRight(D3DXVECTOR3 bottomRight)
 {
-	mBottomRight = bottomRight;
+	mLocalBottomRight = bottomRight;
 }
 
 const D3DXVECTOR3* const BoundingBox::getTopLeft()const
@@ -39,12 +39,12 @@ void BoundingBox::onMatrixChanged(const D3DXMATRIXA16* const matrix)
 	D3DXVECTOR4 vector;
 	
 
-	D3DXVec3Transform(&vector, &D3DXVECTOR3(-1.0f, 1.0f, 0.0f), matrix);
+	D3DXVec3Transform(&vector, &mLocalTopLeft, matrix);
 	mTopLeft.x = vector.x;
 	mTopLeft.y = vector.y;
 	mTopLeft.z = vector.z;
 
-	D3DXVec3Transform(&vector, &D3DXVECTOR3(1.0f, -1.0f, 0.0f), matrix);
+	D3DXVec3Transform(&vector, &mLocalBottomRight, matrix);
 	mBottomRight.x = vector.x;
 	mBottomRight.y = vector.y;
 	mBottomRight.z = vector.z;
