@@ -82,7 +82,7 @@ HRESULT Game::initGeometry()
 	mCollideableStore.reserve(GameConstants::kCollideable);
 
 	mTextureManager->init(g_pd3dDevice);
-	mBananaTexture = mTextureManager->createTexture("image.jpg");
+	mBananaTexture = mTextureManager->createTexture("Tree.png");
 
 	//create player
 	mPlayer = std::make_shared<GameObject>();
@@ -108,6 +108,7 @@ HRESULT Game::initGeometry()
 	enemy->addComponent(box);
 	mCollideableStore.push_back(box.get());
 	//enemy->setPos(D3DXVECTOR3(2.0f, 2.0f, 0.0f));
+	enemy->setScale(2.0f, 2.0f, 1.0f);
 	mGameObjects.push_back(enemy);
 
 	SetRect(&textbox, 0, 0, 640, 480);
