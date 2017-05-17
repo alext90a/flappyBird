@@ -7,8 +7,19 @@ DWORD Game::mLastUpdateTime = 0;
 Game::Game()
 {
 	mGameObjects.reserve(kMaxGameObjects);
+	mActiveObject.reserve(kMaxBarriers);
+
+	
+	
 }
 
+int Game::getRandomInt(int minValue, int maxValue)
+{
+	std::random_device rd;     // only used once to initialise (seed) engine
+	std::mt19937 rng(rd());    // random-number engine used (Mersenne-Twister in this case)
+	std::uniform_int_distribution<int> uni(minValue, maxValue); // guaranteed unbiased
+	return uni(rng);
+}
 
 Game::~Game()
 {
@@ -104,19 +115,21 @@ HRESULT Game::initGeometry()
 	mGameObjects.push_back(mPlayer);
 	//==============================================
 
+	for (int i = 0; i < kMaxBarriers; ++i)
+	{
+		std::shared_ptr<GameObject> barrier = std::make_shared<GameObject>();
+		barrier->init(g_pd3dDevice);
+		std::shared_ptr<Sprite> enemySprite = std::make_shared<Sprite>();
+		enemySprite->init(g_pd3dDevice, mEnemyTexture);
+		barrier->addComponent(enemySprite);
+
+		std::shared_ptr<BoundingBox> box = std::make_shared<BoundingBox>();
+		barrier->addComponent(box);
+		mCollideableStore.push_back(box.get());
+		barrier->setScale(2.0f, 2.0f, 1.0f);
+		mObjectsReserve.push_back(barrier);
+	}
 	
-	std::shared_ptr<GameObject> enemy = std::make_shared<GameObject>();
-	enemy->init(g_pd3dDevice);
-	std::shared_ptr<Sprite> enemySprite = std::make_shared<Sprite>();
-	enemySprite->init(g_pd3dDevice, mEnemyTexture);
-	enemy->addComponent(enemySprite);
-	
-	std::shared_ptr<BoundingBox> box = std::make_shared<BoundingBox>();
-	enemy->addComponent(box);
-	mCollideableStore.push_back(box.get());
-	//enemy->setPos(D3DXVECTOR3(2.0f, 2.0f, 0.0f));
-	enemy->setScale(2.0f, 2.0f, 1.0f);
-	mGameObjects.push_back(enemy);
 
 	SetRect(&textbox, 0, 0, 640, 480);
 	D3DXCreateFont(g_pd3dDevice,    // the D3D Device
@@ -168,8 +181,8 @@ void Game::SetupMatrices()
 	// a point to lookat, and a direction for which way is up. Here, we set the
 	// eye five units back along the z-axis and up three units, look at the
 	// origin, and define "up" to be in the y-direction.
-	D3DXVECTOR3 vEyePt(0.0f, 0.0f, -25.0f);
-	D3DXVECTOR3 vLookatPt(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 vEyePt(mPlayer->getPosX(), 0.0f, -25.0f);
+	D3DXVECTOR3 vLookatPt(mPlayer->getPosX(), 0.0f, 0.0f);
 	D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
 	D3DXMATRIXA16 matView;
 	D3DXMatrixLookAtLH(&matView, &vEyePt, &vLookatPt, &vUpVec);
@@ -188,6 +201,25 @@ void Game::SetupMatrices()
 
 void Game::update()
 {
+	DWORD curTime = timeGetTime();
+	mDeltaTime = (curTime - mLastUpdateTime) / 1000.0f;
+	mLastUpdateTime = curTime;
+
+	mTimeSinceLastBarrierSpawn += mDeltaTime;
+	if (mTimeSinceLastBarrierSpawn >= kBarrierTimeSpawn)
+	{
+		if (!mObjectsReserve.empty())
+		{
+			auto curObj = mObjectsReserve.front();
+			mObjectsReserve.pop_front();
+			curObj->setPosX(mPlayer->getPosX() + kBarrierXStartOffset);
+			mActiveObject.insert(curObj);
+			mTimeSinceLastBarrierSpawn = 0.0f;
+		}
+		
+		
+	}
+	
 	checkCollideables();
 }
 
@@ -217,37 +249,41 @@ void Game::render()
 	// Begin the scene
 	if (SUCCEEDED(g_pd3dDevice->BeginScene()))
 	{
-		DWORD curTime = timeGetTime();
-		mDeltaTime = (curTime - mLastUpdateTime)/1000.0f;
-		mLastUpdateTime = curTime;
+		
 
+		mPlayer->addPosX(kPlayerSpeed * mDeltaTime);
 		// Setup the world, view, and projection matrices
 		SetupMatrices();
-
+		
 		
 		for (int i=0; i < mBackgroundObjects.size(); ++i)
 		{
 			
-			float displacement = kBackSpeed * mDeltaTime;
+			float displacement = kPlayerSpeed * mDeltaTime;
 			mBackgroundObjects[i]->addPosX(displacement);
-			if (mBackgroundObjects[i]->getPosX() < kLeftmostX)
-			{
-				int prevIndex = (i +mBackgroundObjects.size() - 1) % mBackgroundObjects.size();
-				if (prevIndex > i)
-				{
-					mBackgroundObjects[i]->setPosX(kBackgroundWidth + mBackgroundObjects[prevIndex]->getPosX() + kBackSpeed *mDeltaTime);
-				}
-				else
-				{
-					mBackgroundObjects[i]->setPosX(kBackgroundWidth + mBackgroundObjects[prevIndex]->getPosX());
-				}
-				
-			}
+
 			
 			mBackgroundObjects[i]->draw();
 
 		}
-		
+
+		std::list<std::shared_ptr<GameObject>> removeList;
+		for (auto curObj : mActiveObject)
+		{
+			
+			curObj->draw();
+			if ((mPlayer->getPosX() - curObj->getPosX()) >= kObjLiveMaxDistance)
+			{
+				removeList.push_back(curObj);
+			}
+
+			
+		}
+		for (auto curRemove : removeList)
+		{
+			mActiveObject.erase(curRemove);
+			mObjectsReserve.push_back(curRemove);
+		}
 
 		for (auto curObj : mGameObjects)
 		{

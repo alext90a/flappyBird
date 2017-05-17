@@ -20,7 +20,9 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <random>
 #include <list>
+#include <unordered_set>
 #include <functional>
 #include <Mmsystem.h>
 #include <d3dx9.h>

@@ -22,6 +22,8 @@ protected:
 	void checkCollideables();
 	void createBackground();
 
+	int getRandomInt(int minVale, int maxValue);
+
 protected:
 	LPDIRECT3D9             g_pD3D = NULL; // Used to create the D3DDevice
 	LPDIRECT3DDEVICE9       g_pd3dDevice = NULL; // Our rendering device
@@ -41,7 +43,10 @@ protected:
 
 	std::vector<std::shared_ptr<GameObject>> mGameObjects;
 	std::vector<std::shared_ptr<GameObject>> mBackgroundObjects;
+	std::list<std::shared_ptr<GameObject>> mObjectsReserve;
+	std::unordered_set<std::shared_ptr<GameObject>> mActiveObject;
 
 	static DWORD mLastUpdateTime;
+	float mTimeSinceLastBarrierSpawn;
 };
 
