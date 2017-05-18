@@ -31,10 +31,10 @@ protected:
 	std::shared_ptr<GameObject> createBarrierTop();
 
 	void updateScoreText();
-
+	void createMainMenu();
 protected:
 	LPDIRECT3D9             g_pD3D = NULL; // Used to create the D3DDevice
-	LPDIRECT3DDEVICE9       g_pd3dDevice = NULL; // Our rendering device
+	LPDIRECT3DDEVICE9       mDevice = NULL; // Our rendering device
 	LPDIRECT3DVERTEXBUFFER9 g_pVB = NULL; // Buffer to hold vertices
 	LPD3DXFONT				g_Font = NULL;
 	//LPDIRECT3DTEXTURE9      g_pTexture = NULL; // Our texture
@@ -59,9 +59,11 @@ protected:
 	std::vector<std::shared_ptr<GameObject>> mObjectsReserve;
 	std::unordered_set<std::shared_ptr<GameObject>> mActiveObject;
 
+	std::shared_ptr<GameObject> mMainMenu = nullptr;
+
 	static DWORD mLastUpdateTime;
 	float mTimeSinceLastBarrierSpawn;
 
-	bool mIsOnMenu = false;
+	bool mIsOnMenu = true;
 };
 

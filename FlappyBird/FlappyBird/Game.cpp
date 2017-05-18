@@ -50,8 +50,8 @@ void Game::close()
 		curObj->clean();
 	}
 
-	if (g_pd3dDevice != NULL)
-		g_pd3dDevice->Release();
+	if (mDevice != NULL)
+		mDevice->Release();
 
 	if (g_pD3D != NULL)
 		g_pD3D->Release();
@@ -76,19 +76,19 @@ HRESULT Game::initD3D(HWND hWnd)
 	// Create the D3DDevice
 	if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-		&d3dpp, &g_pd3dDevice)))
+		&d3dpp, &mDevice)))
 	{
 		return E_FAIL;
 	}
 
 	// Turn off culling
-	g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	mDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 
 	// Turn off D3D lighting
-	g_pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	mDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 
 	// Turn on the zbuffer
-	g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+	mDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 
 	return S_OK;
 }
@@ -97,17 +97,17 @@ HRESULT Game::initGeometry()
 {
 	mCollideableLayer.reserve(kCollideable);
 
-	mTextureManager->init(g_pd3dDevice);
+	mTextureManager->init(mDevice);
 	std::shared_ptr<Texture> mPlayerTexture = mTextureManager->createTexture("png\\bird.png");
 	
 
 	createBackground();
 	//create player
 	std::shared_ptr<GameObject> playerGameObj = std::make_shared<GameObject>();
-	playerGameObj->init(g_pd3dDevice);
+	playerGameObj->init(mDevice);
 	
 	std::shared_ptr<Renderable> playerSprite = std::make_shared<Renderable>();
-	std::shared_ptr<Geometry> playerGeometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice);
+	std::shared_ptr<Geometry> playerGeometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice);
 	playerSprite->init(playerGeometry, mPlayerTexture);
 	playerGameObj->addComponent(playerSprite);
 	
@@ -148,11 +148,13 @@ HRESULT Game::initGeometry()
 		
 	}
 	
+
+	createMainMenu();
 	
 
 	SetRect(&textbox, 0, 0, kGameWidth, kGameHeight);
 	SetRect(&mScoreRect, kGameWidth/2, 0, kGameWidth, 30);
-	D3DXCreateFont(g_pd3dDevice,    // the D3D Device
+	D3DXCreateFont(mDevice,    // the D3D Device
 		24,    // font height
 		0,    // default font width
 		FW_NORMAL,    // font weight
@@ -172,12 +174,12 @@ std::shared_ptr<GameObject> Game::createBarrierBottom()
 {
 	std::shared_ptr<Texture> barrierTexture = mTextureManager->createTexture("png\\Objects\\Crate.png");
 	std::shared_ptr<GameObject> barrierParent = std::make_shared<GameObject>();
-	barrierParent->init(g_pd3dDevice);
+	barrierParent->init(mDevice);
 
 	std::shared_ptr<GameObject> barrierBottom = std::make_shared<GameObject>();
-	barrierBottom->init(g_pd3dDevice);
+	barrierBottom->init(mDevice);
 	std::shared_ptr<Renderable> enemySprite = std::make_shared<Renderable>();
-	std::shared_ptr<Geometry> geom = mGeometryManager->getGeometry(GEOMETRY::POLY_1X6, g_pd3dDevice);
+	std::shared_ptr<Geometry> geom = mGeometryManager->getGeometry(GEOMETRY::POLY_1X6, mDevice);
 	enemySprite->init(geom, barrierTexture);
 	barrierBottom->addComponent(enemySprite);
 
@@ -198,8 +200,8 @@ std::shared_ptr<GameObject> Game::createBarrierBottom()
 	//create bonus
 
 	std::shared_ptr<GameObject> bonusObject = std::make_shared<GameObject>();
-	bonusObject->init(g_pd3dDevice);
-	std::shared_ptr<Geometry> bonusGeometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice);
+	bonusObject->init(mDevice);
+	std::shared_ptr<Geometry> bonusGeometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice);
 	std::shared_ptr<Texture> bonusTexture = mTextureManager->createTexture("png\\Objects\\StoneBlock.png");
 	std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
 	renderable->init(bonusGeometry, bonusTexture);
@@ -217,12 +219,12 @@ std::shared_ptr<GameObject> Game::createBarrierMiddle()
 {
 	std::shared_ptr<Texture> barrierTexture = mTextureManager->createTexture("png\\Objects\\Crate.png");
 	std::shared_ptr<GameObject> barrierParent = std::make_shared<GameObject>();
-	barrierParent->init(g_pd3dDevice);
+	barrierParent->init(mDevice);
 
 	std::shared_ptr<GameObject> barrierBottom = std::make_shared<GameObject>();
-	barrierBottom->init(g_pd3dDevice);
+	barrierBottom->init(mDevice);
 	std::shared_ptr<Renderable> enemySprite = std::make_shared<Renderable>();
-	std::shared_ptr<Geometry> geom = mGeometryManager->getGeometry(GEOMETRY::POLY_1X3, g_pd3dDevice);
+	std::shared_ptr<Geometry> geom = mGeometryManager->getGeometry(GEOMETRY::POLY_1X3, mDevice);
 	enemySprite->init(geom, barrierTexture);
 	barrierBottom->addComponent(enemySprite);
 
@@ -233,9 +235,9 @@ std::shared_ptr<GameObject> Game::createBarrierMiddle()
 	barrierBottom->setLocalPosY(0.0f);
 
 	std::shared_ptr<GameObject> barrierTop = std::make_shared<GameObject>();
-	barrierTop->init(g_pd3dDevice);
+	barrierTop->init(mDevice);
 	std::shared_ptr<Renderable> renderableTop = std::make_shared<Renderable>();
-	std::shared_ptr<Geometry> geomTop = mGeometryManager->getGeometry(GEOMETRY::POLY_1X2, g_pd3dDevice);
+	std::shared_ptr<Geometry> geomTop = mGeometryManager->getGeometry(GEOMETRY::POLY_1X2, mDevice);
 	renderableTop->init(geomTop, barrierTexture);
 	barrierTop->addComponent(renderableTop);
 	std::shared_ptr<BoundingBox> topBox = std::make_shared<BoundingBox>();
@@ -255,8 +257,8 @@ std::shared_ptr<GameObject> Game::createBarrierMiddle()
 	//create bonus
 
 	std::shared_ptr<GameObject> bonusObject = std::make_shared<GameObject>();
-	bonusObject->init(g_pd3dDevice);
-	std::shared_ptr<Geometry> bonusGeometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice);
+	bonusObject->init(mDevice);
+	std::shared_ptr<Geometry> bonusGeometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice);
 	std::shared_ptr<Texture> bonusTexture = mTextureManager->createTexture("png\\Objects\\StoneBlock.png");
 	std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
 	renderable->init(bonusGeometry, bonusTexture);
@@ -276,12 +278,12 @@ std::shared_ptr<GameObject> Game::createBarrierTop()
 	std::shared_ptr<Texture> barrierTexture = mTextureManager->createTexture("png\\Objects\\Crate.png");
 
 	std::shared_ptr<GameObject> barrierParent = std::make_shared<GameObject>();
-	barrierParent->init(g_pd3dDevice);
+	barrierParent->init(mDevice);
 
 	std::shared_ptr<GameObject> barrierBottom = std::make_shared<GameObject>();
-	barrierBottom->init(g_pd3dDevice);
+	barrierBottom->init(mDevice);
 	std::shared_ptr<Renderable> enemySprite = std::make_shared<Renderable>();
-	std::shared_ptr<Geometry> geom = mGeometryManager->getGeometry(GEOMETRY::POLY_1X6, g_pd3dDevice);
+	std::shared_ptr<Geometry> geom = mGeometryManager->getGeometry(GEOMETRY::POLY_1X6, mDevice);
 	enemySprite->init(geom, barrierTexture);
 	barrierBottom->addComponent(enemySprite);
 
@@ -302,8 +304,8 @@ std::shared_ptr<GameObject> Game::createBarrierTop()
 	//create bonus
 
 	std::shared_ptr<GameObject> bonusObject = std::make_shared<GameObject>();
-	bonusObject->init(g_pd3dDevice);
-	std::shared_ptr<Geometry> bonusGeometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice);
+	bonusObject->init(mDevice);
+	std::shared_ptr<Geometry> bonusGeometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice);
 	std::shared_ptr<Texture> bonusTexture = mTextureManager->createTexture("png\\Objects\\StoneBlock.png");
 	std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
 	renderable->init(bonusGeometry, bonusTexture);
@@ -327,9 +329,9 @@ void Game::createBackground()
 		std::shared_ptr<Texture> texture = mTextureManager->createTexture("png\\BG.png");
 
 		std::shared_ptr<GameObject> background = std::make_shared<GameObject>();
-		background->init(g_pd3dDevice);
+		background->init(mDevice);
 		std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
-		renderable->init(mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice), texture);
+		renderable->init(mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice), texture);
 		background->addComponent(renderable);
 		background->setLocalScale(kBackgroundWidth, kBackgroundWidth*1.2f, 1.0f);
 		background->addLocalPos(startX + 2.0f* halfWidth*(float)i, 0.0f, 1.0f);
@@ -346,7 +348,7 @@ void Game::SetupMatrices()
 	D3DXMATRIXA16 matWorld;
 	D3DXMatrixIdentity(&matWorld);
 	//D3DXMatrixRotationX(&matWorld, timeGetTime() / 1000.0f);
-	g_pd3dDevice->SetTransform(D3DTS_WORLD, &matWorld);
+	mDevice->SetTransform(D3DTS_WORLD, &matWorld);
 
 	// Set up our view matrix. A view matrix can be defined given an eye point,
 	// a point to lookat, and a direction for which way is up. Here, we set the
@@ -357,7 +359,7 @@ void Game::SetupMatrices()
 	D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
 	D3DXMATRIXA16 matView;
 	D3DXMatrixLookAtLH(&matView, &vEyePt, &vLookatPt, &vUpVec);
-	g_pd3dDevice->SetTransform(D3DTS_VIEW, &matView);
+	mDevice->SetTransform(D3DTS_VIEW, &matView);
 
 	// For the projection matrix, we set up a perspective transform (which
 	// transforms geometry from 3D view space to 2D viewport space, with
@@ -367,7 +369,7 @@ void Game::SetupMatrices()
 	// what distances geometry should be no longer be rendered).
 	D3DXMATRIXA16 matProj;
 	D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI / 4, 640.0f/480.0f, 1.0f, 100.0f);
-	g_pd3dDevice->SetTransform(D3DTS_PROJECTION, &matProj);
+	mDevice->SetTransform(D3DTS_PROJECTION, &matProj);
 }
 
 void Game::update()
@@ -467,11 +469,11 @@ void Game::updateScoreText()
 void Game::render()
 {
 	// Clear the backbuffer and the zbuffer
-	g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+	mDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
 		D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
 
 	// Begin the scene
-	if (SUCCEEDED(g_pd3dDevice->BeginScene()))
+	if (SUCCEEDED(mDevice->BeginScene()))
 	{
 		
 
@@ -509,6 +511,11 @@ void Game::render()
 		{
 			curObj->draw();
 		}
+
+		if (mIsOnMenu)
+		{
+			mMainMenu->draw();
+		}
 		g_Font->DrawTextA(NULL,
 			mTestText.c_str(),
 			strlen(mTestText.c_str()),
@@ -524,13 +531,13 @@ void Game::render()
 			D3DCOLOR_RGBA(255, 1, 1, 255));
 
 		// End the scene
-		g_pd3dDevice->EndScene();
+		mDevice->EndScene();
 	}
 
 
 
 	// Present the backbuffer contents to the display
-	g_pd3dDevice->Present(NULL, NULL, NULL, NULL);
+	mDevice->Present(NULL, NULL, NULL, NULL);
 }
 
 void Game::processInput(WPARAM wParam)
@@ -599,4 +606,40 @@ void Game::startPlay()
 	}
 
 	updateScoreText();
+}
+
+void Game::createMainMenu()
+{
+	mMainMenu = std::make_shared<GameObject>();
+	std::shared_ptr<Geometry> geometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice);
+	std::shared_ptr<Texture> texture = mTextureManager->createTexture("png\\Objects\\Crate.png");
+	std::shared_ptr<Renderable> render = std::make_shared<Renderable>();
+
+	mMainMenu->init(mDevice);
+	render->init(geometry, texture);
+	mMainMenu->addComponent(render);
+	//mMainMenu->setLocalScale(15.0f, 15.0f, 1.0f);
+
+	float startY = 7.0f;
+	float buttonHeight = 3.0f;
+	float buttonSpace = 1.0f;
+	for (int i = 0; i < 3; ++i)
+	{
+		std::shared_ptr<GameObject> buttonObj = std::make_shared<GameObject>();
+		std::shared_ptr<Geometry> buttonGeo = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice);
+		std::shared_ptr<Texture> buttonTex = mTextureManager->createTexture("png\\Button.png");
+		std::shared_ptr<Renderable> buttonRender = std::make_shared<Renderable>();
+
+		buttonObj->init(mDevice);
+		buttonRender->init(buttonGeo, buttonTex);
+		buttonObj->addComponent(buttonRender);
+		//buttonObj->setLocalScale(10.0f, buttonHeight, 1.0f);
+		buttonObj->setLocalPos(0.0f, startY - (buttonHeight + buttonSpace)*i, -0.1f);
+		mMainMenu->addChild(buttonObj);
+	}
+
+
+
+
+	mMainMenu->setLocalPos(D3DXVECTOR3(0.0f, 0.0f, -1.0f));
 }
