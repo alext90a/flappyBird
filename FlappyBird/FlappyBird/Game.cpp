@@ -330,7 +330,7 @@ void Game::createBackground()
 		std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
 		renderable->init(mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice), texture);
 		background->addComponent(renderable);
-		background->setLocalScale(kBackgroundWidth, kBackgroundWidth, 1.0f);
+		background->setLocalScale(kBackgroundWidth, kBackgroundWidth*1.2f, 1.0f);
 		background->addLocalPos(startX + 2.0f* halfWidth*(float)i, 0.0f, 1.0f);
 		
 		mBackgroundObjects.push_back(background);
@@ -371,15 +371,15 @@ void Game::SetupMatrices()
 
 void Game::update()
 {
-	if (mIsOnMenu)
-	{
-		return;
-	}
+	
 
 	DWORD curTime = timeGetTime();
 	mDeltaTime = (curTime - mLastUpdateTime) / 1000.0f;
 	mLastUpdateTime = curTime;
-
+	if (mIsOnMenu)
+	{
+		return;
+	}
 	for (auto curObj : mGameObjects)
 	{
 		curObj->update();
@@ -538,6 +538,13 @@ void Game::processInput(WPARAM wParam)
 	{
 		mPlayer->getGameObject()->addLocalPos(1.0f, 0.0f, 0.0f);
 	}
+	else if (wParam == VK_SPACE)
+	{
+		if (mIsOnMenu)
+		{
+			startPlay();
+		}
+	}
 	else
 	{
 
@@ -552,6 +559,7 @@ void Game::onPlayerCrashed()
 
 void Game::startPlay()
 {
+	mIsOnMenu = false;
 	mPlayer->start();
 	for (auto curObj : mActiveObject)
 	{
@@ -559,4 +567,12 @@ void Game::startPlay()
 		mObjectsReserve.push_back(curObj);
 	}
 	mActiveObject.clear();
+
+	float startX = -kBackgroundWidth;
+	float halfWidth = kBackgroundWidth / 2.0f;
+	for (int i = 0; i < 3; ++i)
+	{
+		mBackgroundObjects[i]->setLocalPos(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		mBackgroundObjects[i]->addLocalPos(startX + 2.0f* halfWidth*(float)i, 0.0f, 1.0f);
+	}
 }
