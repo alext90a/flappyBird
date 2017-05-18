@@ -118,6 +118,7 @@ HRESULT Game::initGeometry()
 
 	mPlayer = std::make_shared<Bird>();
 	playerGameObj->addComponent(mPlayer);
+	mPlayer->start();
 	mPlayer->setOnPlayerCrashed([this]() {this->onPlayerCrashed(); });
 	
 	mGameObjects.push_back(playerGameObj);
