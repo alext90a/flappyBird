@@ -36,6 +36,9 @@ public:
 	void setCrashedState();
 	float getCurUpForce()const;
 	void setCurUpForce(float force);
+	void addScore(int score);
+	void setScore(int score);
+	int getScore()const;
 
 protected:
 	D3DXVECTOR3 mFlyDirection = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
@@ -48,5 +51,7 @@ protected:
 	std::shared_ptr<FallDawnState> mFallDawnState = std::make_shared<FallDawnState>();
 	std::shared_ptr<FlyState> mFlyState = std::make_shared<FlyState>();
 	std::shared_ptr<BirdState> mCurState = nullptr;
+
+	int mScore = 0;
 };
 

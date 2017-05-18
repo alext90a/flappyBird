@@ -18,3 +18,6 @@ static const float kBarrierTimeSpawn = 2.0f;
 static const float kBarrierXStartOffset = 25.0f;
 static const float kObjLiveMaxDistance = 30.0f;
 
+static const float kGameWidth = 640.0f;
+static const float kGameHeight = 480.0f;
+

@@ -88,6 +88,7 @@ void Bird::start()
 {
 	mGameObject->setLocalPos(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 	mCurState = mFlyState;
+	mScore = 0;
 }
 
 void Bird::setFallDawnState()
@@ -102,4 +103,19 @@ void Bird::setCrashedState()
 	{
 		mOnPlayerCrashed();
 	}
+}
+
+void Bird::addScore(int score)
+{
+	mScore += score;
+}
+
+void Bird::setScore(int score)
+{
+	mScore = score;
+}
+
+int Bird::getScore()const
+{
+	return mScore;
 }

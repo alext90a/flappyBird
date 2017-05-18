@@ -150,7 +150,8 @@ HRESULT Game::initGeometry()
 	
 	
 
-	SetRect(&textbox, 0, 0, 640, 480);
+	SetRect(&textbox, 0, 0, kGameWidth, kGameHeight);
+	SetRect(&mScoreRect, kGameWidth/2, 0, kGameWidth, 30);
 	D3DXCreateFont(g_pd3dDevice,    // the D3D Device
 		24,    // font height
 		0,    // default font width
@@ -446,12 +447,20 @@ void Game::checkCollideables()
 		if (curBonusBox->isIntersect(playerBoundingBox)/* || playerBoundingBox->isIntersect(curBonusBox)*/)
 		{
 			curBonusBox->getGameObject()->setEnabled(false);
+			mPlayer->addScore(1);
+			updateScoreText();
 			mTestText = "bonus acheived!";
 			return;
 		}
 	}
 	
 	
+}
+
+void Game::updateScoreText()
+{
+	
+	mScoreText = "Score: " + std::to_string(mPlayer->getScore());
 }
 
 void Game::render()
@@ -503,6 +512,13 @@ void Game::render()
 			mTestText.c_str(),
 			strlen(mTestText.c_str()),
 			&textbox,
+			DT_LEFT | DT_TOP,
+			D3DCOLOR_RGBA(255, 1, 1, 255));
+
+		g_Font->DrawTextA(NULL,
+			mScoreText.c_str(),
+			strlen(mTestText.c_str()),
+			&mScoreRect,
 			DT_LEFT | DT_TOP,
 			D3DCOLOR_RGBA(255, 1, 1, 255));
 
@@ -575,4 +591,6 @@ void Game::startPlay()
 		mBackgroundObjects[i]->setLocalPos(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 		mBackgroundObjects[i]->addLocalPos(startX + 2.0f* halfWidth*(float)i, 0.0f, 1.0f);
 	}
+
+	updateScoreText();
 }

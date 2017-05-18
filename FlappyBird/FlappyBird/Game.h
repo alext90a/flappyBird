@@ -29,7 +29,7 @@ protected:
 	std::shared_ptr<GameObject> createBarrierMiddle();
 	std::shared_ptr<GameObject> createBarrierTop();
 
-	
+	void updateScoreText();
 
 protected:
 	LPDIRECT3D9             g_pD3D = NULL; // Used to create the D3DDevice
@@ -46,6 +46,9 @@ protected:
 
 	std::string mTestText = "Hello word!";
 	RECT textbox;
+
+	std::string mScoreText = "Score: 0";
+	RECT mScoreRect;
 
 	std::vector<const BoundingBox*> mCollideableLayer;
 	std::vector<const BoundingBox*> mBonusLayer;
