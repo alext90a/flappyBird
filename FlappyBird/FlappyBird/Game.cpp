@@ -103,22 +103,24 @@ HRESULT Game::initGeometry()
 
 	createBackground();
 	//create player
-	mPlayer = std::make_shared<GameObject>();
-	mPlayer->init(g_pd3dDevice);
+	std::shared_ptr<GameObject> playerGameObj = std::make_shared<GameObject>();
+	playerGameObj->init(g_pd3dDevice);
 	
 	std::shared_ptr<Renderable> playerSprite = std::make_shared<Renderable>();
 	std::shared_ptr<Geometry> playerGeometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice);
 	playerSprite->init(playerGeometry, mPlayerTexture);
-	mPlayer->addComponent(playerSprite);
+	playerGameObj->addComponent(playerSprite);
 	
 	mPlayerBounds = std::make_shared<BoundingBox>();
 	mPlayerBounds->init(playerGeometry->getTopLeft(), playerGeometry->getBottomRight(), nullptr);
-	mPlayer->setLocalScale(2.0f, 2.0f, 1.0f);
-	mPlayer->addComponent(mPlayerBounds);
+	playerGameObj->setLocalScale(2.0f, 2.0f, 1.0f);
+	playerGameObj->addComponent(mPlayerBounds);
+
+	mPlayer = std::make_shared<Bird>();
+	playerGameObj->addComponent(mPlayer);
+	mPlayer->setOnPlayerCrashed([this]() {this->onPlayerCrashed(); });
 	
-	
-	mGameObjects.push_back(mPlayer);
-	//mGameObjects.push_back(playerChild);
+	mGameObjects.push_back(playerGameObj);
 	//==============================================
 	
 	for (int i = 0; i < kMaxBarriers; ++i)
@@ -348,8 +350,8 @@ void Game::SetupMatrices()
 	// a point to lookat, and a direction for which way is up. Here, we set the
 	// eye five units back along the z-axis and up three units, look at the
 	// origin, and define "up" to be in the y-direction.
-	D3DXVECTOR3 vEyePt(mPlayer->getLocalPosX(), 0.0f, -25.0f);
-	D3DXVECTOR3 vLookatPt(mPlayer->getLocalPosX(), 0.0f, 0.0f);
+	D3DXVECTOR3 vEyePt(mPlayer->getGameObject()->getLocalPosX(), 0.0f, -25.0f);
+	D3DXVECTOR3 vLookatPt(mPlayer->getGameObject()->getLocalPosX(), 0.0f, 0.0f);
 	D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
 	D3DXMATRIXA16 matView;
 	D3DXMatrixLookAtLH(&matView, &vEyePt, &vLookatPt, &vUpVec);
@@ -368,9 +370,19 @@ void Game::SetupMatrices()
 
 void Game::update()
 {
+	if (mIsOnMenu)
+	{
+		return;
+	}
+
 	DWORD curTime = timeGetTime();
 	mDeltaTime = (curTime - mLastUpdateTime) / 1000.0f;
 	mLastUpdateTime = curTime;
+
+	for (auto curObj : mGameObjects)
+	{
+		curObj->update();
+	}
 
 	mTimeSinceLastBarrierSpawn += mDeltaTime;
 	if (mTimeSinceLastBarrierSpawn >= kBarrierTimeSpawn)
@@ -382,7 +394,7 @@ void Game::update()
 			auto curObj = mObjectsReserve[randomIndex];
 			mObjectsReserve[randomIndex] = mObjectsReserve[mObjectsReserve.size() - 1];
 			mObjectsReserve.pop_back();
-			curObj->setLocalPosX(mPlayer->getLocalPosX() + kBarrierXStartOffset);
+			curObj->setLocalPosX(mPlayer->getGameObject()->getLocalPosX() + kBarrierXStartOffset);
 			curObj->setEnabled(true);
 			mActiveObject.insert(curObj);
 			mTimeSinceLastBarrierSpawn = 0.0f;
@@ -392,6 +404,15 @@ void Game::update()
 	}
 	
 	checkCollideables();
+
+	for (unsigned int i = 0; i < mBackgroundObjects.size(); ++i)
+	{
+
+		float displacement = kPlayerSpeed * mDeltaTime;
+		mBackgroundObjects[i]->addLocalPosX(displacement);
+
+
+	}
 }
 
 void Game::checkCollideables()
@@ -433,20 +454,14 @@ void Game::render()
 	{
 		
 
-		mPlayer->addLocalPosX(kPlayerSpeed * mDeltaTime);
+		
 		// Setup the world, view, and projection matrices
 		SetupMatrices();
 		
 		
 		for (unsigned int i=0; i < mBackgroundObjects.size(); ++i)
 		{
-			
-			float displacement = kPlayerSpeed * mDeltaTime;
-			mBackgroundObjects[i]->addLocalPosX(displacement);
-
-			
 			mBackgroundObjects[i]->draw();
-
 		}
 		
 		
@@ -455,7 +470,7 @@ void Game::render()
 		{
 			
 			curObj->draw();
-			if ((mPlayer->getLocalPosX() - curObj->getLocalPosX()) >= kObjLiveMaxDistance)
+			if ((mPlayer->getGameObject()->getLocalPosX() - curObj->getLocalPosX()) >= kObjLiveMaxDistance)
 			{
 				removeList.push_back(curObj);
 			}
@@ -495,26 +510,31 @@ void Game::processInput(WPARAM wParam)
 	
 	if (wParam == VK_UP)
 	{
-		mPlayer->addLocalPos(0.0f, 1.0f, 0.0f);
+		mPlayer->addUpImpulse();
 	}
 
 	else if (wParam == VK_DOWN)
 	{
-		mPlayer->addLocalPos(0.0f, -1.0f, 0.0f);
+		mPlayer->getGameObject()->addLocalPos(0.0f, -1.0f, 0.0f);
 	}
 
 	else if (wParam == VK_LEFT)
 	{
-		mPlayer->addLocalPos(-1.0f, 0.0f, 0.0f);
+		mPlayer->getGameObject()->addLocalPos(-1.0f, 0.0f, 0.0f);
 	}
 
 	else if (wParam == VK_RIGHT)
 	{
-		mPlayer->addLocalPos(1.0f, 0.0f, 0.0f);
+		mPlayer->getGameObject()->addLocalPos(1.0f, 0.0f, 0.0f);
 	}
 	else
 	{
 
 	}
 	
+}
+
+void Game::onPlayerCrashed()
+{
+	mIsOnMenu = true;
 }

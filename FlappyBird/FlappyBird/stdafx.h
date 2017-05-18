@@ -38,6 +38,8 @@
 #include "Texture.h"
 #include "Sprite.h"
 
+#include "Bird.h"
+
 #include "TextureManager.h"
 #include "GameObject.h"
 #include "Game.h"

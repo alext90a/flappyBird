@@ -148,6 +148,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bird.h" />
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="FlappyBird.h" />
     <ClInclude Include="Game.h" />
@@ -164,6 +165,7 @@
     <ClInclude Include="TextureManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Bird.cpp" />
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="FlappyBird.cpp" />

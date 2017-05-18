@@ -12,7 +12,7 @@ public:
 	void processInput(WPARAM wParam);
 	void close();
 
-
+	void onPlayerCrashed();
 	static float mDeltaTime;
 protected:
 	HRESULT initD3D(HWND hWnd);
@@ -28,6 +28,8 @@ protected:
 	std::shared_ptr<GameObject> createBarrierMiddle();
 	std::shared_ptr<GameObject> createBarrierTop();
 
+	
+
 protected:
 	LPDIRECT3D9             g_pD3D = NULL; // Used to create the D3DDevice
 	LPDIRECT3DDEVICE9       g_pd3dDevice = NULL; // Our rendering device
@@ -36,7 +38,7 @@ protected:
 	//LPDIRECT3DTEXTURE9      g_pTexture = NULL; // Our texture
 	std::unique_ptr<TextureManager> mTextureManager = std::make_unique<TextureManager>();
 	std::unique_ptr<GeometryManager> mGeometryManager = std::make_unique<GeometryManager>();
-	std::shared_ptr<GameObject> mPlayer = nullptr;
+	std::shared_ptr<Bird> mPlayer = nullptr;
 	std::shared_ptr<BoundingBox> mPlayerBounds = nullptr;
 	
 	
@@ -54,5 +56,7 @@ protected:
 
 	static DWORD mLastUpdateTime;
 	float mTimeSinceLastBarrierSpawn;
+
+	bool mIsOnMenu = false;
 };
 
