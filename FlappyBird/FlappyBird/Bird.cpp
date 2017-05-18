@@ -86,6 +86,7 @@ void Bird::setOnPlayerCrashed(std::function<void()> func)
 
 void Bird::start()
 {
+	mGameObject->setLocalPos(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 	mCurState = mFlyState;
 }
 

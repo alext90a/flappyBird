@@ -68,10 +68,7 @@ void GameObject::update()
 
 void GameObject::onMatrixChanged()
 {
-	if (!mIsEnabled)
-	{
-		return;
-	}
+
 	if (mParent == nullptr)
 	{
 		mWorldPosMatrix = mLocalPosMatrix;

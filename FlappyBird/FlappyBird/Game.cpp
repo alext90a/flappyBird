@@ -142,7 +142,7 @@ HRESULT Game::initGeometry()
 		}
 		if (barrier != nullptr)
 		{
-			//barrier->setEnabled(false);
+			barrier->setEnabled(false);
 			mObjectsReserve.push_back(barrier);
 		}
 		
@@ -395,8 +395,9 @@ void Game::update()
 			auto curObj = mObjectsReserve[randomIndex];
 			mObjectsReserve[randomIndex] = mObjectsReserve[mObjectsReserve.size() - 1];
 			mObjectsReserve.pop_back();
-			curObj->setLocalPosX(mPlayer->getGameObject()->getLocalPosX() + kBarrierXStartOffset);
 			curObj->setEnabled(true);
+			curObj->setLocalPosX(mPlayer->getGameObject()->getLocalPosX() + kBarrierXStartOffset);
+			
 			mActiveObject.insert(curObj);
 			mTimeSinceLastBarrierSpawn = 0.0f;
 		}
@@ -422,6 +423,11 @@ void Game::checkCollideables()
 	
 	for (auto curBoundingBox : mCollideableLayer)
 	{
+		if (!curBoundingBox->getGameObject()->isEnabled())
+		{
+			continue;
+		}
+
 		if (curBoundingBox->isIntersect(playerBoundingBox))
 			
 		{
@@ -433,6 +439,10 @@ void Game::checkCollideables()
 
 	for (auto curBonusBox : mBonusLayer)
 	{
+		if (!curBonusBox->getGameObject()->isEnabled())
+		{
+			continue;
+		}
 		if (curBonusBox->isIntersect(playerBoundingBox)/* || playerBoundingBox->isIntersect(curBonusBox)*/)
 		{
 			curBonusBox->getGameObject()->setEnabled(false);
@@ -538,4 +548,15 @@ void Game::processInput(WPARAM wParam)
 void Game::onPlayerCrashed()
 {
 	mIsOnMenu = true;
+}
+
+void Game::startPlay()
+{
+	mPlayer->start();
+	for (auto curObj : mActiveObject)
+	{
+		curObj->setEnabled(false);
+		mObjectsReserve.push_back(curObj);
+	}
+	mActiveObject.clear();
 }

@@ -12,6 +12,7 @@ public:
 	void processInput(WPARAM wParam);
 	void close();
 
+	void startPlay();
 	void onPlayerCrashed();
 	static float mDeltaTime;
 protected:
