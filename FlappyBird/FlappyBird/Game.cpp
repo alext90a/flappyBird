@@ -514,6 +514,7 @@ void Game::render()
 
 		if (mIsOnMenu)
 		{
+			mMainMenu->setLocalPosX(mPlayer->getGameObject()->getLocalPosX());
 			mMainMenu->draw();
 		}
 		g_Font->DrawTextA(NULL,
@@ -610,6 +611,7 @@ void Game::startPlay()
 
 void Game::createMainMenu()
 {
+
 	mMainMenu = std::make_shared<GameObject>();
 	std::shared_ptr<Geometry> geometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice);
 	std::shared_ptr<Texture> texture = mTextureManager->createTexture("png\\Objects\\Crate.png");
@@ -618,9 +620,9 @@ void Game::createMainMenu()
 	mMainMenu->init(mDevice);
 	render->init(geometry, texture);
 	mMainMenu->addComponent(render);
-	//mMainMenu->setLocalScale(15.0f, 15.0f, 1.0f);
+	mMainMenu->setLocalScale(15.0f, 15.0f, 1.0f);
 
-	float startY = 7.0f;
+	float startY = 4.0f;
 	float buttonHeight = 3.0f;
 	float buttonSpace = 1.0f;
 	for (int i = 0; i < 3; ++i)
@@ -633,7 +635,8 @@ void Game::createMainMenu()
 		buttonObj->init(mDevice);
 		buttonRender->init(buttonGeo, buttonTex);
 		buttonObj->addComponent(buttonRender);
-		//buttonObj->setLocalScale(10.0f, buttonHeight, 1.0f);
+		
+		buttonObj->setWorldScale(10.0f, buttonHeight, 1.0f);
 		buttonObj->setLocalPos(0.0f, startY - (buttonHeight + buttonSpace)*i, -0.1f);
 		mMainMenu->addChild(buttonObj);
 	}

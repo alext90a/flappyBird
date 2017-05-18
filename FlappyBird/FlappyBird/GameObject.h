@@ -11,6 +11,7 @@ public:
 	void clean();
 	void addChild(std::shared_ptr<GameObject> child);
 
+	void setWorldScale(float x, float y, float z);
 	void setLocalPos(float x, float y, float z);
 	void setLocalPos(D3DXVECTOR3 pos);
 	void setLocalPosX(float x);

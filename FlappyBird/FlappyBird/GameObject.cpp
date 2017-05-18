@@ -108,6 +108,26 @@ void GameObject::parentMatrixChanged(const D3DXMATRIXA16 * mParentPos, const D3D
 	}
 }
 
+void GameObject::setWorldScale(float x, float y, float z)
+{
+	mLocalScaleMatrix._11 = x;
+	mLocalScaleMatrix._22 = y;
+	mLocalScaleMatrix._33 = z;
+	if (mParent != nullptr)
+	{
+		D3DXMATRIXA16 parentScaleInv;
+		float det = D3DXMatrixDeterminant(mParent->getWorldScaleMatrix());
+		D3DXMatrixInverse(&parentScaleInv, &det, mParent->getWorldScaleMatrix());
+		D3DXMatrixMultiply(&mLocalScaleMatrix, &mLocalScaleMatrix, &parentScaleInv);
+	}
+	else
+	{
+		mWorldScaleMatrix._11;
+		mWorldScaleMatrix._22;
+		mWorldScaleMatrix._33;
+	}
+	onMatrixChanged();
+}
 
 void GameObject::setLocalPos(float x, float y, float z)
 {
@@ -198,6 +218,8 @@ float GameObject::getLocalPosY()const
 void GameObject::addChild(std::shared_ptr<GameObject> child)
 {
 	child->setParent(this);
+	auto worldMatrix = child->getWorldScaleMatrix();
+	child->setWorldScale(worldMatrix->_11, worldMatrix->_22, worldMatrix->_23);
 	mChilds.push_back(child);
 }
 
