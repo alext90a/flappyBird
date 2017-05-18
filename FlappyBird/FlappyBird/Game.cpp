@@ -139,6 +139,7 @@ HRESULT Game::initGeometry()
 		}
 		if (barrier != nullptr)
 		{
+			//barrier->setEnabled(false);
 			mObjectsReserve.push_back(barrier);
 		}
 		
@@ -376,8 +377,11 @@ void Game::update()
 	{
 		if (!mObjectsReserve.empty())
 		{
-			auto curObj = mObjectsReserve.front();
-			mObjectsReserve.pop_front();
+			int randomIndex = getRandomInt(0, mObjectsReserve.size() - 1);
+			
+			auto curObj = mObjectsReserve[randomIndex];
+			mObjectsReserve[randomIndex] = mObjectsReserve[mObjectsReserve.size() - 1];
+			mObjectsReserve.pop_back();
 			curObj->setLocalPosX(mPlayer->getLocalPosX() + kBarrierXStartOffset);
 			curObj->setEnabled(true);
 			mActiveObject.insert(curObj);

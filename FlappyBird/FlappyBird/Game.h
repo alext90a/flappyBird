@@ -49,7 +49,7 @@ protected:
 
 	std::vector<std::shared_ptr<GameObject>> mGameObjects;
 	std::vector<std::shared_ptr<GameObject>> mBackgroundObjects;
-	std::list<std::shared_ptr<GameObject>> mObjectsReserve;
+	std::vector<std::shared_ptr<GameObject>> mObjectsReserve;
 	std::unordered_set<std::shared_ptr<GameObject>> mActiveObject;
 
 	static DWORD mLastUpdateTime;
