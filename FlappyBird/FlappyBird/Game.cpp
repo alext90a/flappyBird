@@ -411,7 +411,7 @@ void Game::update()
 	for (unsigned int i = 0; i < mBackgroundObjects.size(); ++i)
 	{
 
-		float displacement = kPlayerSpeed * mDeltaTime;
+		float displacement = mPlayer->getSpeed() * mDeltaTime;
 		mBackgroundObjects[i]->addLocalPosX(displacement);
 
 
@@ -433,6 +433,7 @@ void Game::checkCollideables()
 			
 		{
 			mTestText = "object collided!";
+			mPlayer->setFallDawnState();
 			return;
 		}
 	}
@@ -566,6 +567,11 @@ void Game::processInput(WPARAM wParam)
 
 	}
 	
+}
+
+void Game::onPlayerFallDawn()
+{
+
 }
 
 void Game::onPlayerCrashed()

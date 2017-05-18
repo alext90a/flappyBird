@@ -13,6 +13,7 @@ public:
 	void close();
 
 	void startPlay();
+	void onPlayerFallDawn();
 	void onPlayerCrashed();
 	static float mDeltaTime;
 protected:

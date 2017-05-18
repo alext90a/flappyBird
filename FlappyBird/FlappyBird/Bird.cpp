@@ -11,6 +11,11 @@ void BirdState::update()
 
 }
 
+float BirdState::getSpeed()const
+{
+	return 0.0f;
+}
+
 void FlyState::update()
 {
 	mBird->getGameObject()->addLocalPosY(kGravity * Game::mDeltaTime);
@@ -37,9 +42,19 @@ void FlyState::update()
 	}
 }
 
+float FlyState::getSpeed()const
+{
+	return kPlayerSpeed;
+}
+
 void FallDawnState::update()
 {
-
+	mBird->getGameObject()->addLocalPosY(kGravity * Game::mDeltaTime);
+	if (mBird->getGameObject()->getLocalPosY() < -9.0f)
+	{
+		mBird->getGameObject()->setLocalPosY(-9.0f);
+		mBird->setCrashedState();
+	}
 }
 
 
@@ -94,6 +109,10 @@ void Bird::start()
 void Bird::setFallDawnState()
 {
 	mCurState = mFallDawnState;
+	if (mOnPlayerFallDawn != nullptr)
+	{
+		mOnPlayerFallDawn();
+	}
 }
 
 void Bird::setCrashedState()
@@ -118,4 +137,9 @@ void Bird::setScore(int score)
 int Bird::getScore()const
 {
 	return mScore;
+}
+
+float Bird::getSpeed()const
+{
+	return mCurState->getSpeed();
 }
