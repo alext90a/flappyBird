@@ -11,11 +11,15 @@ BoundingBox::~BoundingBox()
 {
 }
 
-void BoundingBox::init(D3DXVECTOR3 topLeft, D3DXVECTOR3 bottomRight, std::vector<const BoundingBox*>& collisionLayer)
+void BoundingBox::init(D3DXVECTOR3 topLeft, D3DXVECTOR3 bottomRight, std::vector<const BoundingBox*>* collisionLayer)
 {
 	mLocalTopLeft = topLeft;
 	mLocalBottomRight = bottomRight;
-	collisionLayer.push_back(this);
+	if (collisionLayer != nullptr)
+	{
+		collisionLayer->push_back(this);
+	}
+	
 }
 
 const D3DXVECTOR3* const BoundingBox::getTopLeft()const
@@ -45,7 +49,10 @@ void BoundingBox::onMatrixChanged(const D3DXMATRIXA16* const matrix)
 	mBottomRight.x = vector.x;
 	mBottomRight.y = vector.y;
 	mBottomRight.z = vector.z;
-	
+
+	mWorldPos.x = matrix->_41;
+	mWorldPos.y = matrix->_42;
+	mWorldPos.z = matrix->_43;
 }
 
 bool BoundingBox::isPointInside(const D3DXVECTOR3* point)const
@@ -58,16 +65,14 @@ bool BoundingBox::isPointInside(const D3DXVECTOR3* point)const
 	return false;
 }
 
+const D3DXVECTOR3* const BoundingBox::getWorldPos()const
+{
+	return &mWorldPos;
+}
+
 bool BoundingBox::isIntersect(const BoundingBox* otherBox)const
 {
-	if ((mTopLeft.x <= otherBox->mTopLeft.x && otherBox->mTopLeft.x <= mBottomRight.x) ||
-		(mTopLeft.x <= otherBox->mBottomRight.x && otherBox->mBottomRight.x <= mBottomRight.x))
-	{
-		if ((mBottomRight.y <= otherBox->mBottomRight.y && otherBox->mBottomRight.y <= mTopLeft.y) ||
-			(mBottomRight.y <= otherBox->mTopLeft.y && otherBox->mTopLeft.y <= mTopLeft.y))
-		{
-			return true;
-		}
-	}
-	return false;
+	return (abs(mWorldPos.x - otherBox->getWorldPos()->x) * 2 < (mBottomRight.x- mTopLeft.x + otherBox->getBottomRight()->x - otherBox->getTopLeft()->x)) &&
+		(abs(mWorldPos.y - otherBox->getWorldPos()->y) * 2 < (mTopLeft.y - mBottomRight.y + otherBox->getTopLeft()->y - otherBox->getBottomRight()->y));
+
 }

@@ -98,8 +98,8 @@ HRESULT Game::initGeometry()
 	mCollideableLayer.reserve(kCollideable);
 
 	mTextureManager->init(g_pd3dDevice);
-	std::shared_ptr<Texture> mPlayerTexture = mTextureManager->createTexture("Tree.png");
-	std::shared_ptr<Texture> mEnemyTexture = mTextureManager->createTexture("png\\Objects\\Crate.png");
+	std::shared_ptr<Texture> mPlayerTexture = mTextureManager->createTexture("png\\bird.png");
+	
 
 	createBackground();
 	//create player
@@ -107,12 +107,15 @@ HRESULT Game::initGeometry()
 	mPlayer->init(g_pd3dDevice);
 	
 	std::shared_ptr<Renderable> playerSprite = std::make_shared<Renderable>();
-	playerSprite->init(mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice), mPlayerTexture);
+	std::shared_ptr<Geometry> playerGeometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice);
+	playerSprite->init(playerGeometry, mPlayerTexture);
 	mPlayer->addComponent(playerSprite);
-
+	
 	mPlayerBounds = std::make_shared<BoundingBox>();
+	mPlayerBounds->init(playerGeometry->getTopLeft(), playerGeometry->getBottomRight(), nullptr);
+	mPlayer->setLocalScale(2.0f, 2.0f, 1.0f);
 	mPlayer->addComponent(mPlayerBounds);
-
+	
 	
 	mGameObjects.push_back(mPlayer);
 	//mGameObjects.push_back(playerChild);
@@ -120,60 +123,25 @@ HRESULT Game::initGeometry()
 	
 	for (int i = 0; i < kMaxBarriers; ++i)
 	{
-		std::shared_ptr<GameObject> barrierParent = std::make_shared<GameObject>();
-		barrierParent->init(g_pd3dDevice);
-
-		std::shared_ptr<GameObject> barrierBottom = std::make_shared<GameObject>();
-		barrierBottom->init(g_pd3dDevice);
-		std::shared_ptr<Renderable> enemySprite = std::make_shared<Renderable>();
-		std::shared_ptr<Geometry> geom = mGeometryManager->getGeometry(GEOMETRY::POLY_1X3, g_pd3dDevice);
-		enemySprite->init(geom, mEnemyTexture);
-		barrierBottom->addComponent(enemySprite);
-
-		std::shared_ptr<BoundingBox> box = std::make_shared<BoundingBox>();
-		box->init(geom->getTopLeft(), geom->getBottomRight(), mCollideableLayer);
-		barrierBottom->addComponent(box);
-		barrierBottom->setLocalScale(2.0f, 2.0f, 1.0f);
-		barrierBottom->setLocalPosY(0.0f);
-
-		std::shared_ptr<GameObject> barrierTop = std::make_shared<GameObject>();
-		barrierTop->init(g_pd3dDevice);
-		std::shared_ptr<Renderable> renderableTop = std::make_shared<Renderable>();
-		std::shared_ptr<Geometry> geomTop = mGeometryManager->getGeometry(GEOMETRY::POLY_1X2, g_pd3dDevice);
-		renderableTop->init(geomTop, mEnemyTexture);
-		barrierTop->addComponent(renderableTop);
-		std::shared_ptr<BoundingBox> topBox = std::make_shared<BoundingBox>();
-		topBox->init(geomTop->getTopLeft(), geomTop->getBottomRight(), mCollideableLayer);
-		barrierTop->addComponent(topBox);
-		barrierTop->setLocalScale(2.0f, 2.0f, 1.0f);
-		barrierTop->setLocalPosY(0.0f);
-
-		barrierParent->addChild(barrierBottom);
-		barrierParent->addChild(barrierTop);
-		barrierParent->setLocalPosY(-9.0f);
-		barrierBottom->setLocalPosY(3.0f);
-		barrierTop->setLocalPosY(15.0f);
-
+		int random = getRandomInt(1, 3);
+		std::shared_ptr<GameObject> barrier = nullptr;
+		if (random == 1)
+		{
+			barrier = createBarrierBottom();
+		}
+		else if (random == 2)
+		{
+			barrier = createBarrierMiddle();
+		}
+		else if (random == 3)
+		{
+			barrier = createBarrierTop();
+		}
+		if (barrier != nullptr)
+		{
+			mObjectsReserve.push_back(barrier);
+		}
 		
-
-		//create bonus
-		
-		std::shared_ptr<GameObject> bonusObject = std::make_shared<GameObject>();
-		bonusObject->init(g_pd3dDevice);
-		std::shared_ptr<Geometry> bonusGeometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice);
-		std::shared_ptr<Texture> bonusTexture = mTextureManager->createTexture("png\\Objects\\StoneBlock.png");
-		std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
-		renderable->init(bonusGeometry, bonusTexture);
-		bonusObject->addComponent(renderable);
-		std::shared_ptr<BoundingBox> bonusBounding = std::make_shared<BoundingBox>();
-		bonusBounding->init(bonusGeometry->getTopLeft(), bonusGeometry->getBottomRight(), mBonusLayer);
-		bonusObject->addComponent(bonusBounding);
-		barrierParent->addChild(bonusObject);
-		float bottomHeight = geom->getTopLeft().y - geom->getBottomRight().y;
-		bonusObject->setLocalPosY(bottomHeight + barrierBottom->getLocalPosY() + 3.0f);
-
-		
-		mObjectsReserve.push_back(barrierParent);
 	}
 	
 	
@@ -193,6 +161,156 @@ HRESULT Game::initGeometry()
 		&g_Font);    // the font object
 
 	return S_OK;
+}
+
+std::shared_ptr<GameObject> Game::createBarrierBottom()
+{
+	std::shared_ptr<Texture> barrierTexture = mTextureManager->createTexture("png\\Objects\\Crate.png");
+	std::shared_ptr<GameObject> barrierParent = std::make_shared<GameObject>();
+	barrierParent->init(g_pd3dDevice);
+
+	std::shared_ptr<GameObject> barrierBottom = std::make_shared<GameObject>();
+	barrierBottom->init(g_pd3dDevice);
+	std::shared_ptr<Renderable> enemySprite = std::make_shared<Renderable>();
+	std::shared_ptr<Geometry> geom = mGeometryManager->getGeometry(GEOMETRY::POLY_1X6, g_pd3dDevice);
+	enemySprite->init(geom, barrierTexture);
+	barrierBottom->addComponent(enemySprite);
+
+	std::shared_ptr<BoundingBox> box = std::make_shared<BoundingBox>();
+	box->init(geom->getTopLeft(), geom->getBottomRight(), &mCollideableLayer);
+	barrierBottom->addComponent(box);
+	barrierBottom->setLocalScale(2.0f, 2.0f, 1.0f);
+	barrierBottom->setLocalPosY(0.0f);
+
+
+
+	barrierParent->addChild(barrierBottom);
+	barrierParent->setLocalPosY(-9.0f);
+	barrierBottom->setLocalPosY(12.0f);
+
+
+
+	//create bonus
+
+	std::shared_ptr<GameObject> bonusObject = std::make_shared<GameObject>();
+	bonusObject->init(g_pd3dDevice);
+	std::shared_ptr<Geometry> bonusGeometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice);
+	std::shared_ptr<Texture> bonusTexture = mTextureManager->createTexture("png\\Objects\\StoneBlock.png");
+	std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
+	renderable->init(bonusGeometry, bonusTexture);
+	bonusObject->addComponent(renderable);
+	std::shared_ptr<BoundingBox> bonusBounding = std::make_shared<BoundingBox>();
+	bonusBounding->init(bonusGeometry->getTopLeft(), bonusGeometry->getBottomRight(), &mBonusLayer);
+	bonusObject->addComponent(bonusBounding);
+	barrierParent->addChild(bonusObject);
+	float bottomHeight = geom->getTopLeft().y - geom->getBottomRight().y;
+	bonusObject->setLocalPosY(3.0f);
+	return barrierParent;
+}
+
+std::shared_ptr<GameObject> Game::createBarrierMiddle()
+{
+	std::shared_ptr<Texture> barrierTexture = mTextureManager->createTexture("png\\Objects\\Crate.png");
+	std::shared_ptr<GameObject> barrierParent = std::make_shared<GameObject>();
+	barrierParent->init(g_pd3dDevice);
+
+	std::shared_ptr<GameObject> barrierBottom = std::make_shared<GameObject>();
+	barrierBottom->init(g_pd3dDevice);
+	std::shared_ptr<Renderable> enemySprite = std::make_shared<Renderable>();
+	std::shared_ptr<Geometry> geom = mGeometryManager->getGeometry(GEOMETRY::POLY_1X3, g_pd3dDevice);
+	enemySprite->init(geom, barrierTexture);
+	barrierBottom->addComponent(enemySprite);
+
+	std::shared_ptr<BoundingBox> box = std::make_shared<BoundingBox>();
+	box->init(geom->getTopLeft(), geom->getBottomRight(), &mCollideableLayer);
+	barrierBottom->addComponent(box);
+	barrierBottom->setLocalScale(2.0f, 2.0f, 1.0f);
+	barrierBottom->setLocalPosY(0.0f);
+
+	std::shared_ptr<GameObject> barrierTop = std::make_shared<GameObject>();
+	barrierTop->init(g_pd3dDevice);
+	std::shared_ptr<Renderable> renderableTop = std::make_shared<Renderable>();
+	std::shared_ptr<Geometry> geomTop = mGeometryManager->getGeometry(GEOMETRY::POLY_1X2, g_pd3dDevice);
+	renderableTop->init(geomTop, barrierTexture);
+	barrierTop->addComponent(renderableTop);
+	std::shared_ptr<BoundingBox> topBox = std::make_shared<BoundingBox>();
+	topBox->init(geomTop->getTopLeft(), geomTop->getBottomRight(), &mCollideableLayer);
+	barrierTop->addComponent(topBox);
+	barrierTop->setLocalScale(2.0f, 2.0f, 1.0f);
+	barrierTop->setLocalPosY(0.0f);
+
+	barrierParent->addChild(barrierBottom);
+	barrierParent->addChild(barrierTop);
+	barrierParent->setLocalPosY(-9.0f);
+	barrierBottom->setLocalPosY(3.0f);
+	barrierTop->setLocalPosY(15.0f);
+
+
+
+	//create bonus
+
+	std::shared_ptr<GameObject> bonusObject = std::make_shared<GameObject>();
+	bonusObject->init(g_pd3dDevice);
+	std::shared_ptr<Geometry> bonusGeometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice);
+	std::shared_ptr<Texture> bonusTexture = mTextureManager->createTexture("png\\Objects\\StoneBlock.png");
+	std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
+	renderable->init(bonusGeometry, bonusTexture);
+	bonusObject->addComponent(renderable);
+	std::shared_ptr<BoundingBox> bonusBounding = std::make_shared<BoundingBox>();
+	bonusBounding->init(bonusGeometry->getTopLeft(), bonusGeometry->getBottomRight(), &mBonusLayer);
+	bonusObject->addComponent(bonusBounding);
+	barrierParent->addChild(bonusObject);
+	float bottomHeight = geom->getTopLeft().y - geom->getBottomRight().y;
+	bonusObject->setLocalPosY(bottomHeight + barrierBottom->getLocalPosY() + 3.0f);
+
+	return barrierParent;
+}
+
+std::shared_ptr<GameObject> Game::createBarrierTop()
+{
+	std::shared_ptr<Texture> barrierTexture = mTextureManager->createTexture("png\\Objects\\Crate.png");
+
+	std::shared_ptr<GameObject> barrierParent = std::make_shared<GameObject>();
+	barrierParent->init(g_pd3dDevice);
+
+	std::shared_ptr<GameObject> barrierBottom = std::make_shared<GameObject>();
+	barrierBottom->init(g_pd3dDevice);
+	std::shared_ptr<Renderable> enemySprite = std::make_shared<Renderable>();
+	std::shared_ptr<Geometry> geom = mGeometryManager->getGeometry(GEOMETRY::POLY_1X6, g_pd3dDevice);
+	enemySprite->init(geom, barrierTexture);
+	barrierBottom->addComponent(enemySprite);
+
+	std::shared_ptr<BoundingBox> box = std::make_shared<BoundingBox>();
+	box->init(geom->getTopLeft(), geom->getBottomRight(), &mCollideableLayer);
+	barrierBottom->addComponent(box);
+	barrierBottom->setLocalScale(2.0f, 2.0f, 1.0f);
+	barrierBottom->setLocalPosY(0.0f);
+
+
+
+	barrierParent->addChild(barrierBottom);
+	barrierParent->setLocalPosY(-9.0f);
+	barrierBottom->setLocalPosY(6.0f);
+
+
+
+	//create bonus
+
+	std::shared_ptr<GameObject> bonusObject = std::make_shared<GameObject>();
+	bonusObject->init(g_pd3dDevice);
+	std::shared_ptr<Geometry> bonusGeometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, g_pd3dDevice);
+	std::shared_ptr<Texture> bonusTexture = mTextureManager->createTexture("png\\Objects\\StoneBlock.png");
+	std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
+	renderable->init(bonusGeometry, bonusTexture);
+	bonusObject->addComponent(renderable);
+	std::shared_ptr<BoundingBox> bonusBounding = std::make_shared<BoundingBox>();
+	bonusBounding->init(bonusGeometry->getTopLeft(), bonusGeometry->getBottomRight(), &mBonusLayer);
+	bonusObject->addComponent(bonusBounding);
+	barrierParent->addChild(bonusObject);
+	float bottomHeight = geom->getTopLeft().y - geom->getBottomRight().y;
+	bonusObject->setLocalPosY(bottomHeight + barrierBottom->getLocalPosY() + 3.0f);
+
+	return barrierParent;
 }
 
 void Game::createBackground()
@@ -289,7 +407,7 @@ void Game::checkCollideables()
 
 	for (auto curBonusBox : mBonusLayer)
 	{
-		if (curBonusBox->isIntersect(playerBoundingBox))
+		if (curBonusBox->isIntersect(playerBoundingBox)/* || playerBoundingBox->isIntersect(curBonusBox)*/)
 		{
 			curBonusBox->getGameObject()->setEnabled(false);
 			mTestText = "bonus acheived!";

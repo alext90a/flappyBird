@@ -24,6 +24,10 @@ protected:
 
 	int getRandomInt(int minVale, int maxValue);
 
+	std::shared_ptr<GameObject> createBarrierBottom();
+	std::shared_ptr<GameObject> createBarrierMiddle();
+	std::shared_ptr<GameObject> createBarrierTop();
+
 protected:
 	LPDIRECT3D9             g_pD3D = NULL; // Used to create the D3DDevice
 	LPDIRECT3DDEVICE9       g_pd3dDevice = NULL; // Our rendering device

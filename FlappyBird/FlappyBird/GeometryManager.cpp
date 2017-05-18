@@ -32,6 +32,14 @@ std::shared_ptr<Geometry> GeometryManager::getGeometry(GEOMETRY type, LPDIRECT3D
 	{
 		geo->init(device, 1, 3);
 	}
+	else if (type == GEOMETRY::POLY_1X4)
+	{
+		geo->init(device, 1, 4);
+	}
+	else if (type == GEOMETRY::POLY_1X6)
+	{
+		geo->init(device, 1, 6);
+	}
 	
 	mGeometryCreated.insert(std::make_pair(type, geo));
 	return geo;
