@@ -9,8 +9,9 @@ public:
 	void showDialog();
 	void showDialog(const std::string& name, const int score);
 	void closeDialog();
-protected:
 	int getMinScore()const;
+protected:
+	
 	void setScore(const std::string& name, int score);
 
 protected:

@@ -711,7 +711,15 @@ void Game::onPlayerFallDawn()
 void Game::onPlayerCrashed()
 {
 	mIsOnMenu = true;
-	showMainMenu();
+	if (mPlayer->getScore() > mHighScoreDialog->getMinScore())
+	{
+		mHighScoreDialog->showDialog("Player", mPlayer->getScore());
+	}
+	else
+	{
+		showMainMenu();
+	}
+	
 }
 
 void Game::startPlay()
@@ -732,7 +740,7 @@ void Game::startPlay()
 		mBackgroundObjects[i]->setLocalPos(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 		mBackgroundObjects[i]->addLocalPos(startX + 2.0f* halfWidth*(float)i, 0.0f, 1.0f);
 	}
-
+	mMainMenu->setEnabled(false);
 	updateScoreText();
 }
 
@@ -780,7 +788,7 @@ void Game::createMainMenu()
 	mButtons[0]->setFunc([this]() {this->startPlay(); });
 	mButtons[1]->setFunc([this]() {
 		mMainMenu->setEnabled(false);
-		mHighScoreDialog->showDialog("Player", 10); 
+		mHighScoreDialog->showDialog(); 
 	});
 	mButtons[2]->setFunc([this]() {this->close(); });
 
