@@ -19,7 +19,7 @@ std::shared_ptr<Geometry> GeometryManager::getGeometry(GEOMETRY type, LPDIRECT3D
 		return findedIter->second;
 	}
 
-	std::shared_ptr<Geometry> geo = std::make_shared<Geometry>();
+	std::shared_ptr<Geometry> geo(new Geometry());
 	if (type == GEOMETRY::POLY_1X1)
 	{
 		geo->init(device, 1, 1);

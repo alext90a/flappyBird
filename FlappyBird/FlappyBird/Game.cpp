@@ -420,8 +420,8 @@ void Game::SetupMatrices()
 	// a point to lookat, and a direction for which way is up. Here, we set the
 	// eye five units back along the z-axis and up three units, look at the
 	// origin, and define "up" to be in the y-direction.
-	D3DXVECTOR3 vEyePt(mPlayer->getGameObject()->getLocalPosX(), 0.0f, -25.0f);
-	D3DXVECTOR3 vLookatPt(mPlayer->getGameObject()->getLocalPosX(), 0.0f, 0.0f);
+	D3DXVECTOR3 vEyePt(mPlayer->getGameObject()->getLocalPosX()+kPlayerXOffset, 0.0f, -25.0f);
+	D3DXVECTOR3 vLookatPt(mPlayer->getGameObject()->getLocalPosX()+kPlayerXOffset, 0.0f, 0.0f);
 	D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
 	
 	D3DXMatrixLookAtLH(&mMatView, &vEyePt, &vLookatPt, &vUpVec);
@@ -581,10 +581,10 @@ void Game::render()
 		if (mIsOnMenu)
 		{
 			
-			mMainMenu->setLocalPosX(mPlayer->getGameObject()->getLocalPosX());
+			mMainMenu->setLocalPosX(mPlayer->getGameObject()->getLocalPosX()+kPlayerXOffset);
 			mMainMenu->draw();
 			
-			mHighScoreMenu->setLocalPosX(mPlayer->getGameObject()->getLocalPosX());
+			mHighScoreMenu->setLocalPosX(mPlayer->getGameObject()->getLocalPosX()+kPlayerXOffset);
 			mHighScoreMenu->draw();
 			
 		}
@@ -621,27 +621,7 @@ void Game::processInput(WPARAM wParam, LPARAM lParam)
 		mPlayer->addUpImpulse();
 	}
 
-	else if (wParam == VK_DOWN)
-	{
-		mPlayer->getGameObject()->addLocalPos(0.0f, -1.0f, 0.0f);
-	}
 
-	else if (wParam == VK_LEFT)
-	{
-		mPlayer->getGameObject()->addLocalPos(-1.0f, 0.0f, 0.0f);
-	}
-
-	else if (wParam == VK_RIGHT)
-	{
-		mPlayer->getGameObject()->addLocalPos(1.0f, 0.0f, 0.0f);
-	}
-	else if (wParam == VK_SPACE)
-	{
-		if (mIsOnMenu)
-		{
-			startPlay();
-		}
-	}
 	else if (wParam == MK_LBUTTON)
 	{
 		if (mIsOnMenu)
@@ -693,12 +673,13 @@ void Game::processInput(WPARAM wParam, LPARAM lParam)
 			}
 			
 		}
-		
-		int i = 0;
+		else
+		{
+			mPlayer->addUpImpulse();
+		}
 	}
 	else
 	{
-
 	}
 	
 }

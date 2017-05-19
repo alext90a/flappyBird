@@ -36,7 +36,7 @@ std::shared_ptr<Texture> TextureManager::createTexture(std::string filePath)
 		return findedIter->second;
 	}
 
-	std::shared_ptr<Texture> createdTexture = std::make_shared<Texture>();
+	std::shared_ptr<Texture> createdTexture(new Texture);
 	if (createdTexture->create(g_pd3dDevice, filePath) == S_OK)
 	{
 		mUsedTexture.insert(std::make_pair(filePath, createdTexture));

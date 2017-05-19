@@ -1,9 +1,10 @@
 #pragma once
 
 #define D3DFVF_CUSTOMVERTEX (D3DFVF_XYZ|D3DFVF_DIFFUSE|D3DFVF_TEX1)
-
+class GeometryManager;
 class Geometry
 {
+	friend class GeometryManager;
 	struct CUSTOMVERTEX
 	{
 		D3DXVECTOR3 position; // The position
@@ -13,16 +14,16 @@ class Geometry
 #endif
 	};
 public:
-	Geometry();
-	~Geometry();
-
-	HRESULT init(LPDIRECT3DDEVICE9 device, float width, float height);
+	
+	~Geometry();	
 	void draw();
-	void clean();
-
 	D3DXVECTOR3 getTopLeft()const;
 	D3DXVECTOR3 getBottomRight()const;
 
+protected:
+	Geometry();
+	void clean();
+	HRESULT init(LPDIRECT3DDEVICE9 device, float width, float height);
 
 protected:
 	LPDIRECT3DDEVICE9       g_pd3dDevice = nullptr;

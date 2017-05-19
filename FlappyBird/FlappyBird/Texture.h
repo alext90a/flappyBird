@@ -2,13 +2,17 @@
 #include "stdafx.h"
 class Texture
 {
+	friend class TextureManager;
 public:
-	Texture();
+	
 	~Texture();
-
 	HRESULT create(LPDIRECT3DDEVICE9 device, std::string filePath);
 	void draw();
 
+	
+
+protected:
+	Texture();
 	void clean();
 
 protected:
