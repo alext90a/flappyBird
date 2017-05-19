@@ -40,6 +40,10 @@ std::shared_ptr<Geometry> GeometryManager::getGeometry(GEOMETRY type, LPDIRECT3D
 	{
 		geo->init(device, 1, 6);
 	}
+	else if (type == GEOMETRY::POLY_10X1)
+	{
+		geo->init(device, 10, 1);
+	}
 	else if (type == GEOMETRY::BUTTON)
 	{
 		geo->init(device, 3, 1);

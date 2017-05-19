@@ -61,7 +61,7 @@ protected:
 	std::vector<std::shared_ptr<GameObject>> mBackgroundObjects;
 	std::vector<std::shared_ptr<GameObject>> mObjectsReserve;
 	std::unordered_set<std::shared_ptr<GameObject>> mActiveObject;
-
+	std::vector<GameObject*> mGroundObjects;
 	
 	std::shared_ptr<GameObject> mMainMenu = nullptr;
 	std::shared_ptr<GameObject> mHighScoreMenu = nullptr;

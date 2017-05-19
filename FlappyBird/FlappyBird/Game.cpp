@@ -209,7 +209,25 @@ HRESULT Game::initGeometry()
 		}
 		
 	}
+
+	//create ground
+	for (int i = 0; i < 3; ++i)
+	{
+		std::shared_ptr<GameObject> groundObject(std::make_shared<GameObject>());
+		std::shared_ptr<Geometry> groundGeo(mGeometryManager->getGeometry(GEOMETRY::POLY_10X1, mDevice));
+		std::shared_ptr<Texture> groundTexture(mTextureManager->createTexture("png\\Tile\\2.png"));
+		std::shared_ptr<Renderable> groundRender(std::make_shared<Renderable>());
+		groundObject->init(mDevice);
+		groundRender->init(groundGeo, groundTexture);
+		groundObject->addComponent(groundRender);
+		groundObject->setLocalScale(2.0f, 2.0f, 1.0f);
+		groundObject->setLocalPosY(-10.0f);
+		groundObject->setLocalPosX(kGroundWidth*i);
+		mGameObjects.push_back(groundObject);
+		mGroundObjects.push_back(groundObject.get());
+	}
 	
+
 	
 	createMainMenu();
 	createHighscoreMenu();
@@ -484,6 +502,15 @@ void Game::update()
 
 
 	}
+	for (unsigned int i = 0; i < mGroundObjects.size(); ++i)
+	{
+		GameObject* curObj = mGroundObjects[i];
+		if (mPlayer->getGameObject()->getLocalPosX() - curObj->getLocalPosX() > kObjLiveMaxDistance)
+		{
+			int nextInd = (i + mGroundObjects.size() - 1) % mGroundObjects.size();
+			curObj->setLocalPosX(mGroundObjects[nextInd]->getLocalPosX()+kGroundWidth);
+		}
+	}
 }
 
 void Game::checkCollideables()
@@ -716,11 +743,16 @@ void Game::startPlay()
 
 	float startX = -kBackgroundWidth;
 	float halfWidth = kBackgroundWidth / 2.0f;
-	for (int i = 0; i < 3; ++i)
+	for (unsigned int i = 0; i < mBackgroundObjects.size(); ++i)
 	{
 		mBackgroundObjects[i]->setLocalPos(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 		mBackgroundObjects[i]->addLocalPos(startX + 2.0f* halfWidth*(float)i, 0.0f, 1.0f);
 	}
+	for (unsigned int i = 0; i < mGroundObjects.size(); ++i)
+	{
+		mGroundObjects[i]->setLocalPosX(i*kGroundWidth);
+	}
+
 	mMainMenu->setEnabled(false);
 	updateScoreText();
 }
