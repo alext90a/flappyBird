@@ -11,9 +11,13 @@ Button::~Button()
 {
 }
 
-void Button::init(BoundingBox* boundBox, std::function<void()> func)
+void Button::init(BoundingBox* boundBox)
 {
 	mBoundBox = boundBox;
+}
+
+void Button::setFunc(std::function<void()> func)
+{
 	mOnClickFunc = func;
 }
 

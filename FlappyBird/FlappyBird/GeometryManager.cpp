@@ -40,6 +40,10 @@ std::shared_ptr<Geometry> GeometryManager::getGeometry(GEOMETRY type, LPDIRECT3D
 	{
 		geo->init(device, 1, 6);
 	}
+	else if (type == GEOMETRY::BUTTON)
+	{
+		geo->init(device, 3, 1);
+	}
 	
 	mGeometryCreated.insert(std::make_pair(type, geo));
 	return geo;

@@ -6,7 +6,8 @@ enum class GEOMETRY
 	POLY_1X2,
 	POLY_1X3,
 	POLY_1X4,
-	POLY_1X6
+	POLY_1X6,
+	BUTTON
 };
 
 class GeometryManager
