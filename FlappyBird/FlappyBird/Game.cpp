@@ -27,7 +27,7 @@ Game::~Game()
 
 HRESULT Game::init(HWND hWnd)
 {
-	
+	mHwnd = hWnd;
 	if (FAILED(initD3D(hWnd)))
 	{
 		return E_FAIL;
@@ -357,9 +357,9 @@ void Game::SetupMatrices()
 	D3DXVECTOR3 vEyePt(mPlayer->getGameObject()->getLocalPosX(), 0.0f, -25.0f);
 	D3DXVECTOR3 vLookatPt(mPlayer->getGameObject()->getLocalPosX(), 0.0f, 0.0f);
 	D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
-	D3DXMATRIXA16 matView;
-	D3DXMatrixLookAtLH(&matView, &vEyePt, &vLookatPt, &vUpVec);
-	mDevice->SetTransform(D3DTS_VIEW, &matView);
+	
+	D3DXMatrixLookAtLH(&mMatView, &vEyePt, &vLookatPt, &vUpVec);
+	mDevice->SetTransform(D3DTS_VIEW, &mMatView);
 
 	// For the projection matrix, we set up a perspective transform (which
 	// transforms geometry from 3D view space to 2D viewport space, with
@@ -367,9 +367,9 @@ void Game::SetupMatrices()
 	// a perpsective transform, we need the field of view (1/4 pi is common),
 	// the aspect ratio, and the near and far clipping planes (which define at
 	// what distances geometry should be no longer be rendered).
-	D3DXMATRIXA16 matProj;
-	D3DXMatrixPerspectiveFovLH(&matProj, D3DX_PI / 4, 640.0f/480.0f, 1.0f, 100.0f);
-	mDevice->SetTransform(D3DTS_PROJECTION, &matProj);
+	
+	D3DXMatrixPerspectiveFovLH(&mMatProj, D3DX_PI / 4, kGameWidth/kGameHeight, 1.0f, 100.0f);
+	mDevice->SetTransform(D3DTS_PROJECTION, &mMatProj);
 }
 
 void Game::update()
@@ -541,7 +541,7 @@ void Game::render()
 	mDevice->Present(NULL, NULL, NULL, NULL);
 }
 
-void Game::processInput(WPARAM wParam)
+void Game::processInput(WPARAM wParam, LPARAM lParam)
 {
 	
 	if (wParam == VK_UP)
@@ -569,6 +569,45 @@ void Game::processInput(WPARAM wParam)
 		{
 			startPlay();
 		}
+	}
+	else if (wParam == MK_LBUTTON)
+	{
+		
+		int mousex = GET_X_LPARAM(lParam);
+		int mousey = GET_Y_LPARAM(lParam);
+		POINT ptCursor;
+		ptCursor.x = mousex;
+		ptCursor.y = mousey;
+		GetCursorPos(&ptCursor);
+		ScreenToClient(mHwnd, &ptCursor);
+		
+		// Compute the vector of the pick ray in screen space
+		D3DXVECTOR3 v;
+		v.x = (((2.0f * ptCursor.x) / kGameWidth) - 1) / mMatProj._11;
+		v.y = -(((2.0f * ptCursor.y) / kGameHeight) - 1) / mMatProj._22;
+		v.z = 1.0f;
+
+		// Get the inverse view matrix
+
+		D3DXMATRIX matWorld;
+		mDevice->GetTransform(D3DTS_WORLD, &matWorld);
+		D3DXMATRIX mWorldView = mMatView;
+		D3DXMATRIX m;
+		D3DXMatrixInverse(&m, NULL, &mWorldView);
+
+		// Transform the screen space pick ray into 3D space
+		D3DXVECTOR3 vPickRayDir, vPickRayOrig;
+		vPickRayDir.x = v.x * m._11 + v.y * m._21 + v.z * m._31;
+		vPickRayDir.y = v.x * m._12 + v.y * m._22 + v.z * m._32;
+		vPickRayDir.z = v.x * m._13 + v.y * m._23 + v.z * m._33;
+		vPickRayOrig.x = m._41;
+		vPickRayOrig.y = m._42;
+		vPickRayOrig.z = m._43;
+
+		//D3DXVECTOR3 rayDir = rayend - rayorigin;
+		
+		//D3DXVec3Normalize(&rayDir, &rayDir);
+		int i = 0;
 	}
 	else
 	{

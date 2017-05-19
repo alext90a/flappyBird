@@ -9,7 +9,7 @@ public:
 	HRESULT init(HWND hWnd);
 	void update();
 	void render();
-	void processInput(WPARAM wParam);
+	void processInput(WPARAM wParam, LPARAM lParam);
 	void close();
 
 	void startPlay();
@@ -65,5 +65,9 @@ protected:
 	float mTimeSinceLastBarrierSpawn;
 
 	bool mIsOnMenu = true;
+
+	D3DXMATRIXA16 mMatView;
+	D3DXMATRIXA16 mMatProj;
+	HWND mHwnd;
 };
 
