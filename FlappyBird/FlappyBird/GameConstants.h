@@ -22,4 +22,5 @@ static const int kGameWidth = 640;
 static const int kGameHeight = 480;
 
 static const float kButtonHeight = 3.0f;
+static const int kHighscoreLines = 5;
 

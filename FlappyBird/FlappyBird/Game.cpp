@@ -584,8 +584,8 @@ void Game::processInput(WPARAM wParam, LPARAM lParam)
 			HRESULT hr = mDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &offscreenSurface);
 			D3DSURFACE_DESC surfDesc;
 			offscreenSurface->GetDesc(&surfDesc);
-			float width = surfDesc.Width;
-			float height = surfDesc.Height;
+			int width = surfDesc.Width;
+			int height = surfDesc.Height;
 
 			POINT ptCursor;
 			GetCursorPos(&ptCursor);
@@ -712,7 +712,10 @@ void Game::createMainMenu()
 		mButtons.push_back(button);
 	}
 	mButtons[0]->setFunc([this]() {this->startPlay(); });
-	mButtons[1]->setFunc([this]() {this->showHighScore(); });
+	mButtons[1]->setFunc([this]() {
+		mMainMenu->setEnabled(false);
+		mHighScoreDialog->showDialog("Player", 10); 
+	});
 	mButtons[2]->setFunc([this]() {this->close(); });
 
 
@@ -727,20 +730,43 @@ void Game::createHighscoreMenu()
 	std::shared_ptr<Geometry> geometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice);
 	std::shared_ptr<Texture> texture = mTextureManager->createTexture("png\\Menu.png");
 	std::shared_ptr<Renderable> render = std::make_shared<Renderable>();
+	mHighScoreDialog = std::make_shared<HighScoreDialog>();
 
 	mHighScoreMenu->init(mDevice);
 	render->init(geometry, texture);
 	mHighScoreMenu->addComponent(render);
 	mHighScoreMenu->setLocalScale(13.0f, 18.0f, 1.0f);
+	mHighScoreMenu->addComponent(mHighScoreDialog);
 
-	for (int i = 0; i < 5; ++i)
+	std::shared_ptr<GameObject> highScoreImgObj = std::make_shared<GameObject>();
+	std::shared_ptr<Renderable> highScoreImgRend = std::make_shared<Renderable>();
+	highScoreImgRend->init(mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice), mTextureManager->createTexture("png\\highscore.png"));
+	highScoreImgObj->init(mDevice);
+	highScoreImgObj->addComponent(highScoreImgRend);
+	highScoreImgObj->setLocalScale(3.0f, 5.0f, 1.0f);
+	highScoreImgObj->setLocalPos(D3DXVECTOR3(0.0f, 6.0f, -0.1f));
+	mHighScoreMenu->addChild(highScoreImgObj);
+
+
+	for (int i = 0; i < kHighscoreLines; ++i)
 	{
-		std::shared_ptr<TextComponent> textComponent = std::make_shared<TextComponent>();
-		textComponent->init(&g_Font);
-		textComponent->setText("Computer           10");
-		textComponent->setPos(kGameWidth / 2.0f - 100.0f, kGameHeight / 2.0f - 100.0f + 40 * i, kGameWidth + 100, kGameHeight / 2.0f - 100.0f + 20 * i);
-		textComponent->setPos(kGameWidth / 2.0f - 100.0f, kGameHeight / 2.0f - 100.0f + 30 * i, kGameWidth, kGameHeight);
-		mHighScoreMenu->addComponent(textComponent);
+		std::shared_ptr<TextComponent> nameTextComponent = std::make_shared<TextComponent>();
+		nameTextComponent->init(&g_Font);
+		nameTextComponent->setText("Computer");
+		//textComponent->setPos(kGameWidth / 2.0f - 100.0f, kGameHeight / 2 - 100.0f + 40 * i, kGameWidth + 100, kGameHeight / 2.0f - 100.0f + 20 * i);
+		nameTextComponent->setPos(kGameWidth / 2 - 100, kGameHeight / 2 - 100 + 30 * i, kGameWidth, kGameHeight);
+		mHighScoreMenu->addComponent(nameTextComponent);
+
+		std::shared_ptr<TextComponent> scoreTextComponent = std::make_shared<TextComponent>();
+		scoreTextComponent->init(&g_Font);
+		scoreTextComponent->setPos(kGameWidth/2 + 100, kGameHeight / 2 - 100 + 30 * i, kGameWidth, kGameHeight);
+		mHighScoreMenu->addComponent(scoreTextComponent);
+
+		std::shared_ptr<HighscoreLine> scoreLine = std::make_shared<HighscoreLine>();
+		scoreLine->setTextComponent(nameTextComponent.get(), scoreTextComponent.get());
+		scoreLine->setValue("Computer", 10 - i);
+		mHighScoreMenu->addComponent(scoreLine);
+		mHighScoreDialog->addHighScoreLine(scoreLine.get());
 	}
 
 	std::shared_ptr<GameObject> buttonObj = std::make_shared<GameObject>();

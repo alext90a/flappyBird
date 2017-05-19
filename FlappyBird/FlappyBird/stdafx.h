@@ -40,6 +40,8 @@
 #include "Sprite.h"
 #include "Button.h"
 #include "TextComponent.h"
+#include "HighscoreLine.h"
+#include "HighScoreDialog.h"
 #include "Bird.h"
 
 #include "TextureManager.h"

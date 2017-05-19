@@ -66,6 +66,7 @@ protected:
 	std::shared_ptr<GameObject> mMainMenu = nullptr;
 	std::shared_ptr<GameObject> mHighScoreMenu = nullptr;
 	std::vector<std::shared_ptr<Button>> mButtons;
+	std::shared_ptr<HighScoreDialog> mHighScoreDialog = nullptr;
 
 	static DWORD mLastUpdateTime;
 	float mTimeSinceLastBarrierSpawn;
