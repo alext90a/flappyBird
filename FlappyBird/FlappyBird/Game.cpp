@@ -151,6 +151,7 @@ HRESULT Game::initGeometry()
 	
 
 	createMainMenu();
+	createHighscoreMenu();
 	
 
 	SetRect(&textbox, 0, 0, kGameWidth, kGameHeight);
@@ -515,8 +516,12 @@ void Game::render()
 
 		if (mIsOnMenu)
 		{
+			
 			mMainMenu->setLocalPosX(mPlayer->getGameObject()->getLocalPosX());
 			mMainMenu->draw();
+			
+			mHighScoreMenu->setLocalPosX(mPlayer->getGameObject()->getLocalPosX());
+			mHighScoreMenu->draw();
 		}
 		g_Font->DrawTextA(NULL,
 			mTestText.c_str(),
@@ -640,6 +645,7 @@ void Game::onPlayerFallDawn()
 void Game::onPlayerCrashed()
 {
 	mIsOnMenu = true;
+	showMainMenu();
 }
 
 void Game::startPlay()
@@ -678,7 +684,7 @@ void Game::createMainMenu()
 	mMainMenu->setLocalScale(13.0f, 18.0f, 1.0f);
 
 	float startY = 4.0f;
-	float buttonHeight = 3.0f;
+
 	float buttonSpace = 1.0f;
 	std::vector<std::string> buttonNames = { "png\\button_play.png", "png\\button_scores.png", "png\\button_exit.png" };
 	for (int i = 0; i < 3; ++i)
@@ -700,15 +706,80 @@ void Game::createMainMenu()
 		buttonObj->addComponent(boundingBox);
 		buttonObj->addComponent(button);
 		
-		buttonObj->setWorldScale(8.0f, buttonHeight, 1.0f);
-		buttonObj->setLocalPos(0.0f, startY - (buttonHeight + buttonSpace)*i, -0.1f);
+		buttonObj->setWorldScale(8.0f, kButtonHeight, 1.0f);
+		buttonObj->setLocalPos(0.0f, startY - (kButtonHeight + buttonSpace)*i, -0.1f);
 		mMainMenu->addChild(buttonObj);
 		mButtons.push_back(button);
 	}
 	mButtons[0]->setFunc([this]() {this->startPlay(); });
+	mButtons[1]->setFunc([this]() {this->showHighScore(); });
 	mButtons[2]->setFunc([this]() {this->close(); });
 
 
 
 	mMainMenu->setLocalPos(D3DXVECTOR3(0.0f, 0.0f, -1.0f));
+	mMainMenu->setEnabled(false);
+}
+
+void Game::createHighscoreMenu()
+{
+	mHighScoreMenu = std::make_shared<GameObject>();
+	std::shared_ptr<Geometry> geometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice);
+	std::shared_ptr<Texture> texture = mTextureManager->createTexture("png\\Menu.png");
+	std::shared_ptr<Renderable> render = std::make_shared<Renderable>();
+
+	mHighScoreMenu->init(mDevice);
+	render->init(geometry, texture);
+	mHighScoreMenu->addComponent(render);
+	mHighScoreMenu->setLocalScale(13.0f, 18.0f, 1.0f);
+
+	for (int i = 0; i < 5; ++i)
+	{
+		std::shared_ptr<TextComponent> textComponent = std::make_shared<TextComponent>();
+		textComponent->init(&g_Font);
+		textComponent->setText("Computer           10");
+		textComponent->setPos(kGameWidth / 2.0f - 100.0f, kGameHeight / 2.0f - 100.0f + 40 * i, kGameWidth + 100, kGameHeight / 2.0f - 100.0f + 20 * i);
+		textComponent->setPos(kGameWidth / 2.0f - 100.0f, kGameHeight / 2.0f - 100.0f + 30 * i, kGameWidth, kGameHeight);
+		mHighScoreMenu->addComponent(textComponent);
+	}
+
+	std::shared_ptr<GameObject> buttonObj = std::make_shared<GameObject>();
+	std::shared_ptr<Geometry> buttonGeo = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice);
+	std::shared_ptr<Texture> buttonTex = mTextureManager->createTexture("png\\button_close.png");
+	std::shared_ptr<Renderable> buttonRender = std::make_shared<Renderable>();
+	std::shared_ptr<BoundingBox> boundingBox = std::make_shared<BoundingBox>();
+	std::shared_ptr<Button> button = std::make_shared<Button>();
+
+
+	buttonObj->init(mDevice);
+	buttonRender->init(buttonGeo, buttonTex);
+	boundingBox->init(buttonGeo->getTopLeft(), buttonGeo->getBottomRight(), nullptr);
+	button->init(boundingBox.get());
+	button->setFunc([this]() {this->showMainMenu(); });
+
+	buttonObj->addComponent(buttonRender);
+	buttonObj->addComponent(boundingBox);
+	buttonObj->addComponent(button);
+
+	buttonObj->setWorldScale(4.0f, kButtonHeight/1.5f, 1.0f);
+	buttonObj->setLocalPos(0.0f, -5, -0.1f);
+	mHighScoreMenu->addChild(buttonObj);
+	mButtons.push_back(button);
+	
+	mHighScoreMenu->setLocalPos(D3DXVECTOR3(0.0f, 0.0f, -1.0f));
+
+}
+
+void Game::showMainMenu()
+{
+	mIsOnMenu = true;
+	mMainMenu->setEnabled(true);
+	mHighScoreMenu->setEnabled(false);
+}
+
+void Game::showHighScore()
+{
+	mIsOnMenu = true;
+	mHighScoreMenu->setEnabled(true);
+	mMainMenu->setEnabled(false);
 }

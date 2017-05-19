@@ -15,6 +15,9 @@ public:
 	void startPlay();
 	void onPlayerFallDawn();
 	void onPlayerCrashed();
+	void showMainMenu();
+	void showHighScore();
+
 	static float mDeltaTime;
 protected:
 	HRESULT initD3D(HWND hWnd);
@@ -32,6 +35,7 @@ protected:
 
 	void updateScoreText();
 	void createMainMenu();
+	void createHighscoreMenu();
 protected:
 	LPDIRECT3D9             g_pD3D = NULL; // Used to create the D3DDevice
 	LPDIRECT3DDEVICE9       mDevice = NULL; // Our rendering device
@@ -60,6 +64,7 @@ protected:
 	std::unordered_set<std::shared_ptr<GameObject>> mActiveObject;
 
 	std::shared_ptr<GameObject> mMainMenu = nullptr;
+	std::shared_ptr<GameObject> mHighScoreMenu = nullptr;
 	std::vector<std::shared_ptr<Button>> mButtons;
 
 	static DWORD mLastUpdateTime;

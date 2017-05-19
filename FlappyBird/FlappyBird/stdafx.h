@@ -39,6 +39,7 @@
 #include "Texture.h"
 #include "Sprite.h"
 #include "Button.h"
+#include "TextComponent.h"
 #include "Bird.h"
 
 #include "TextureManager.h"

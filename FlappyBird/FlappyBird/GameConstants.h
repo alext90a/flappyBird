@@ -21,3 +21,5 @@ static const float kObjLiveMaxDistance = 30.0f;
 static const int kGameWidth = 640;
 static const int kGameHeight = 480;
 
+static const float kButtonHeight = 3.0f;
+
