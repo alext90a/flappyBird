@@ -1,14 +1,18 @@
 #include "stdafx.h"
 #include "GameObject.h"
 
+int GameObject::mObjects(0);
 
 GameObject::GameObject()
 {
+	++mObjects;
 }
 
 
 GameObject::~GameObject()
 {
+	--mObjects;
+	clean();
 }
 
 bool GameObject::init(LPDIRECT3DDEVICE9 device)
@@ -202,7 +206,14 @@ void GameObject::clean()
 	for (auto curComponent : mComponents)
 	{
 		curComponent->clean();
+		curComponent.reset();
 	}
+	mComponents.clear();
+	for (auto curChild : mChilds)
+	{
+		curChild->clean();
+	}
+	mChilds.clear();
 }
 
 float GameObject::getLocalPosX()const

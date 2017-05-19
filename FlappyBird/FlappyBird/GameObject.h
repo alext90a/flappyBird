@@ -3,7 +3,7 @@ class GameObject
 {
 public:
 	GameObject();
-	~GameObject();
+	virtual ~GameObject();
 	bool init(LPDIRECT3DDEVICE9 device);
 	void addComponent(std::shared_ptr<Component> component);
 	void update();
@@ -27,6 +27,8 @@ public:
 
 	bool isEnabled()const;
 	void setEnabled(bool enabled);
+
+	static int mObjects;
 protected:
 	void onMatrixChanged();
 	const D3DXMATRIXA16* const getWorldPosMatrix()const;
@@ -48,5 +50,6 @@ protected:
 	LPDIRECT3DDEVICE9       g_pd3dDevice = nullptr;
 
 	bool mIsEnabled = true;
+	
 };
 

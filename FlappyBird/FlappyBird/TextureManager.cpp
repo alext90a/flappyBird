@@ -18,10 +18,14 @@ void TextureManager::init(LPDIRECT3DDEVICE9 device)
 
 void TextureManager::clean()
 {
+
+	
 	for (auto curTex : mUsedTexture)
 	{
 		curTex.second->clean();
+		curTex.second.reset();
 	}
+	mUsedTexture.clear();
 }
 
 std::shared_ptr<Texture> TextureManager::createTexture(std::string filePath)

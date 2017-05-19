@@ -4,8 +4,8 @@ class GameObject;
 class Component
 {
 public:
-	Component() {}
-	~Component() {}
+	Component();
+	virtual ~Component();
 	virtual void draw() {};
 	virtual void update() {};
 	virtual void clean() {};
@@ -13,6 +13,9 @@ public:
 
 	GameObject* getGameObject()const;
 	void setGameObject(GameObject* gameObj);
+	static int mAlived;
+	static std::list<Component*> mComs;
 protected:
 	GameObject* mGameObject;
+	
 };

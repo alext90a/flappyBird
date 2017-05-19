@@ -39,7 +39,6 @@ protected:
 protected:
 	LPDIRECT3D9             g_pD3D = NULL; // Used to create the D3DDevice
 	LPDIRECT3DDEVICE9       mDevice = NULL; // Our rendering device
-	LPDIRECT3DVERTEXBUFFER9 g_pVB = NULL; // Buffer to hold vertices
 	LPD3DXFONT				g_Font = NULL;
 	//LPDIRECT3DTEXTURE9      g_pTexture = NULL; // Our texture
 	std::unique_ptr<TextureManager> mTextureManager = std::make_unique<TextureManager>();
@@ -63,10 +62,12 @@ protected:
 	std::vector<std::shared_ptr<GameObject>> mObjectsReserve;
 	std::unordered_set<std::shared_ptr<GameObject>> mActiveObject;
 
+	
 	std::shared_ptr<GameObject> mMainMenu = nullptr;
 	std::shared_ptr<GameObject> mHighScoreMenu = nullptr;
-	std::vector<std::shared_ptr<Button>> mButtons;
+	std::vector<Button*> mButtons;
 	std::shared_ptr<HighScoreDialog> mHighScoreDialog = nullptr;
+	
 
 	static DWORD mLastUpdateTime;
 	float mTimeSinceLastBarrierSpawn;

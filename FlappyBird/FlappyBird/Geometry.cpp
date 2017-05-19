@@ -104,4 +104,6 @@ void Geometry::clean()
 {
 	if (g_pVB != NULL)
 		g_pVB->Release();
+	if (g_pIB != NULL)
+		g_pIB->Release();
 }

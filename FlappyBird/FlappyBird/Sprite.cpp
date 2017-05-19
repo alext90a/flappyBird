@@ -9,6 +9,8 @@ Renderable::Renderable()
 
 Renderable::~Renderable()
 {
+	mGeometry.reset();
+	mTexture.reset();
 }
 
 HRESULT Renderable::init(std::shared_ptr<Geometry> geometry, std::shared_ptr<Texture> texture)

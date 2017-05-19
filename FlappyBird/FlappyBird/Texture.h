@@ -8,10 +8,11 @@ public:
 
 	HRESULT create(LPDIRECT3DDEVICE9 device, std::string filePath);
 	void draw();
+
 	void clean();
 
 protected:
 	LPDIRECT3DDEVICE9       g_pd3dDevice;
-	LPDIRECT3DTEXTURE9      g_pTexture = NULL; // Our texture
+	IDirect3DTexture9*      g_pTexture = NULL; // Our texture
 };
 

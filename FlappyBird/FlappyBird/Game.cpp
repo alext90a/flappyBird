@@ -37,24 +37,78 @@ HRESULT Game::init(HWND hWnd)
 		return E_FAIL;
 	}
 	mLastUpdateTime = timeGetTime();
+	
 	return S_OK;
 }
 
 void Game::close()
 {
-	mGeometryManager->clean();
-	mTextureManager->clean();
+	GameObject::mObjects;
+	
 	
 	for (auto curObj : mGameObjects)
 	{
 		curObj->clean();
+		curObj.reset();
 	}
+	mGameObjects.clear();
+
+	for (auto curObj : mActiveObject)
+	{
+		curObj.reset();
+	}
+	mActiveObject.clear();
+
+	for (auto curObj : mObjectsReserve)
+	{
+		curObj.reset();
+	}
+	mObjectsReserve.clear();
+
+	if (mMainMenu)
+	{
+		mMainMenu->clean();
+		mHighScoreMenu->clean();
+		mHighScoreMenu.reset();
+		mMainMenu.reset();
+		mHighScoreDialog.reset();
+	}
+	for (auto curObj : mBackgroundObjects)
+	{
+		curObj->clean();
+		curObj.reset();
+	}
+	mBackgroundObjects.clear();
+
+	if (mPlayer)
+	{
+		mPlayer->clean();
+		mPlayer.reset();
+	}
+	
+	mButtons.clear();
+
+	mGeometryManager->clean();
+	mTextureManager->clean();
+	mBonusLayer.clear();
+	mCollideableLayer.clear();
+	GameObject::mObjects;
+
+	
+	if (g_Font != NULL)
+	{
+		g_Font->Release();
+	}
+	
 
 	if (mDevice != NULL)
 		mDevice->Release();
 
 	if (g_pD3D != NULL)
 		g_pD3D->Release();
+	int objects = GameObject::mObjects;
+	Component::mAlived;
+	
 	ExitProcess(0);
 }
 
@@ -96,13 +150,17 @@ HRESULT Game::initD3D(HWND hWnd)
 
 HRESULT Game::initGeometry()
 {
+
+
 	mCollideableLayer.reserve(kCollideable);
 
 	mTextureManager->init(mDevice);
 	std::shared_ptr<Texture> mPlayerTexture = mTextureManager->createTexture("png\\bird.png");
 	
+	
 
 	createBackground();
+	
 	//create player
 	std::shared_ptr<GameObject> playerGameObj = std::make_shared<GameObject>();
 	playerGameObj->init(mDevice);
@@ -112,17 +170,20 @@ HRESULT Game::initGeometry()
 	playerSprite->init(playerGeometry, mPlayerTexture);
 	playerGameObj->addComponent(playerSprite);
 	
+	
 	mPlayerBounds = std::make_shared<BoundingBox>();
 	mPlayerBounds->init(playerGeometry->getTopLeft(), playerGeometry->getBottomRight(), nullptr);
 	playerGameObj->setLocalScale(2.0f, 2.0f, 1.0f);
 	playerGameObj->addComponent(mPlayerBounds);
-
+	
+	
 	mPlayer = std::make_shared<Bird>();
 	playerGameObj->addComponent(mPlayer);
 	mPlayer->start();
 	mPlayer->setOnPlayerCrashed([this]() {this->onPlayerCrashed(); });
 	
 	mGameObjects.push_back(playerGameObj);
+	
 	//==============================================
 	
 	for (int i = 0; i < kMaxBarriers; ++i)
@@ -149,13 +210,14 @@ HRESULT Game::initGeometry()
 		
 	}
 	
-
+	
 	createMainMenu();
 	createHighscoreMenu();
 	
 
 	SetRect(&textbox, 0, 0, kGameWidth, kGameHeight);
 	SetRect(&mScoreRect, kGameWidth/2, 0, kGameWidth, 30);
+	
 	D3DXCreateFont(mDevice,    // the D3D Device
 		24,    // font height
 		0,    // default font width
@@ -168,7 +230,7 @@ HRESULT Game::initGeometry()
 		DEFAULT_PITCH | FF_DONTCARE,    // default pitch and family
 		"Arial",    // use Facename Arial
 		&g_Font);    // the font object
-
+	
 	return S_OK;
 }
 
@@ -178,6 +240,7 @@ std::shared_ptr<GameObject> Game::createBarrierBottom()
 	std::shared_ptr<GameObject> barrierParent = std::make_shared<GameObject>();
 	barrierParent->init(mDevice);
 
+	
 	std::shared_ptr<GameObject> barrierBottom = std::make_shared<GameObject>();
 	barrierBottom->init(mDevice);
 	std::shared_ptr<Renderable> enemySprite = std::make_shared<Renderable>();
@@ -214,6 +277,7 @@ std::shared_ptr<GameObject> Game::createBarrierBottom()
 	barrierParent->addChild(bonusObject);
 	float bottomHeight = geom->getTopLeft().y - geom->getBottomRight().y;
 	bonusObject->setLocalPosY(3.0f);
+	
 	return barrierParent;
 }
 
@@ -449,7 +513,7 @@ void Game::checkCollideables()
 		{
 			continue;
 		}
-		if (curBonusBox->isIntersect(playerBoundingBox)/* || playerBoundingBox->isIntersect(curBonusBox)*/)
+		if (curBonusBox->isIntersect(playerBoundingBox))
 		{
 			curBonusBox->getGameObject()->setEnabled(false);
 			mPlayer->addScore(1);
@@ -522,7 +586,9 @@ void Game::render()
 			
 			mHighScoreMenu->setLocalPosX(mPlayer->getGameObject()->getLocalPosX());
 			mHighScoreMenu->draw();
+			
 		}
+		
 		g_Font->DrawTextA(NULL,
 			mTestText.c_str(),
 			strlen(mTestText.c_str()),
@@ -536,7 +602,7 @@ void Game::render()
 			&mScoreRect,
 			DT_LEFT | DT_TOP,
 			D3DCOLOR_RGBA(255, 1, 1, 255));
-
+		
 		// End the scene
 		mDevice->EndScene();
 	}
@@ -615,10 +681,9 @@ void Game::processInput(WPARAM wParam, LPARAM lParam)
 			vPickRayOrig.z = m._43;
 
 			
-			//D3DXVECTOR3 rayDir = rayend - rayorigin;
 
 			D3DXVec3Normalize(&vPickRayDir, &vPickRayDir);
-
+			
 			for (auto curButton : mButtons)
 			{
 				if (curButton->checkClick(&vPickRayOrig, &vPickRayDir))
@@ -626,6 +691,7 @@ void Game::processInput(WPARAM wParam, LPARAM lParam)
 					break;
 				}
 			}
+			
 		}
 		
 		int i = 0;
@@ -672,7 +738,7 @@ void Game::startPlay()
 
 void Game::createMainMenu()
 {
-
+	
 	mMainMenu = std::make_shared<GameObject>();
 	std::shared_ptr<Geometry> geometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice);
 	std::shared_ptr<Texture> texture = mTextureManager->createTexture("png\\Menu.png");
@@ -709,7 +775,7 @@ void Game::createMainMenu()
 		buttonObj->setWorldScale(8.0f, kButtonHeight, 1.0f);
 		buttonObj->setLocalPos(0.0f, startY - (kButtonHeight + buttonSpace)*i, -0.1f);
 		mMainMenu->addChild(buttonObj);
-		mButtons.push_back(button);
+		mButtons.push_back(button.get());
 	}
 	mButtons[0]->setFunc([this]() {this->startPlay(); });
 	mButtons[1]->setFunc([this]() {
@@ -722,10 +788,12 @@ void Game::createMainMenu()
 
 	mMainMenu->setLocalPos(D3DXVECTOR3(0.0f, 0.0f, -1.0f));
 	mMainMenu->setEnabled(false);
+	
 }
 
 void Game::createHighscoreMenu()
 {
+	
 	mHighScoreMenu = std::make_shared<GameObject>();
 	std::shared_ptr<Geometry> geometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice);
 	std::shared_ptr<Texture> texture = mTextureManager->createTexture("png\\Menu.png");
@@ -790,10 +858,10 @@ void Game::createHighscoreMenu()
 	buttonObj->setWorldScale(4.0f, kButtonHeight/1.5f, 1.0f);
 	buttonObj->setLocalPos(0.0f, -5, -0.1f);
 	mHighScoreMenu->addChild(buttonObj);
-	mButtons.push_back(button);
+	mButtons.push_back(button.get());
 	
 	mHighScoreMenu->setLocalPos(D3DXVECTOR3(0.0f, 0.0f, -1.0f));
-
+	
 }
 
 void Game::showMainMenu()
@@ -808,4 +876,5 @@ void Game::showHighScore()
 	mIsOnMenu = true;
 	mHighScoreMenu->setEnabled(true);
 	mMainMenu->setEnabled(false);
+	
 }

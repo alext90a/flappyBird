@@ -9,6 +9,7 @@ Texture::Texture()
 
 Texture::~Texture()
 {
+	clean();
 }
 
 HRESULT Texture::create(LPDIRECT3DDEVICE9 device, std::string filePath)
@@ -40,6 +41,10 @@ void Texture::draw()
 
 void Texture::clean()
 {
+	
 	if (g_pTexture != NULL)
-		g_pTexture->Release();
+	{
+		ULONG data = g_pTexture->Release();
+		g_pTexture = NULL;
+	}
 }
