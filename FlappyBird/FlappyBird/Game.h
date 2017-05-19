@@ -60,6 +60,7 @@ protected:
 	std::unordered_set<std::shared_ptr<GameObject>> mActiveObject;
 
 	std::shared_ptr<GameObject> mMainMenu = nullptr;
+	std::vector<std::shared_ptr<Button>> mButtons;
 
 	static DWORD mLastUpdateTime;
 	float mTimeSinceLastBarrierSpawn;

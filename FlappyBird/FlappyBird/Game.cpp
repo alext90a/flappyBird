@@ -10,7 +10,7 @@ Game::Game()
 	mActiveObject.reserve(kMaxBarriers);
 	mCollideableLayer.reserve(kMaxGameObjects);
 	mBonusLayer.reserve(kMaxGameObjects);
-	
+	mButtons.reserve(kMaxGameObjects);
 }
 
 int Game::getRandomInt(int minValue, int maxValue)
@@ -572,41 +572,56 @@ void Game::processInput(WPARAM wParam, LPARAM lParam)
 	}
 	else if (wParam == MK_LBUTTON)
 	{
+		if (mIsOnMenu)
+		{
+			IDirect3DSurface9 *offscreenSurface = 0;
+			HRESULT hr = mDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &offscreenSurface);
+			D3DSURFACE_DESC surfDesc;
+			offscreenSurface->GetDesc(&surfDesc);
+			float width = surfDesc.Width;
+			float height = surfDesc.Height;
+
+			POINT ptCursor;
+			GetCursorPos(&ptCursor);
+			ScreenToClient(mHwnd, &ptCursor);
+			
+			// Compute the vector of the pick ray in screen space
+			D3DXVECTOR3 v;
+			v.x = (((2.0f * ptCursor.x) / width) - 1) / mMatProj._11;
+			v.y = -(((2.0f * ptCursor.y) / height) - 1) / mMatProj._22;
+			v.z = 1.0f;
+
+			// Get the inverse view matrix
+
+			D3DXMATRIX matWorld;
+			mDevice->GetTransform(D3DTS_WORLD, &matWorld);
+			D3DXMATRIX mWorldView = mMatView;
+			D3DXMATRIX m;
+			D3DXMatrixInverse(&m, NULL, &mMatView);
+
+			// Transform the screen space pick ray into 3D space
+			D3DXVECTOR3 vPickRayDir, vPickRayOrig;
+			vPickRayDir.x = v.x * m._11 + v.y * m._21 + v.z * m._31;
+			vPickRayDir.y = v.x * m._12 + v.y * m._22 + v.z * m._32;
+			vPickRayDir.z = v.x * m._13 + v.y * m._23 + v.z * m._33;
+			vPickRayOrig.x = m._41;
+			vPickRayOrig.y = m._42;
+			vPickRayOrig.z = m._43;
+
+			
+			//D3DXVECTOR3 rayDir = rayend - rayorigin;
+
+			D3DXVec3Normalize(&vPickRayDir, &vPickRayDir);
+
+			for (auto curButton : mButtons)
+			{
+				if (curButton->checkClick(&vPickRayOrig, &vPickRayDir))
+				{
+					break;
+				}
+			}
+		}
 		
-		int mousex = GET_X_LPARAM(lParam);
-		int mousey = GET_Y_LPARAM(lParam);
-		POINT ptCursor;
-		ptCursor.x = mousex;
-		ptCursor.y = mousey;
-		GetCursorPos(&ptCursor);
-		ScreenToClient(mHwnd, &ptCursor);
-		
-		// Compute the vector of the pick ray in screen space
-		D3DXVECTOR3 v;
-		v.x = (((2.0f * ptCursor.x) / kGameWidth) - 1) / mMatProj._11;
-		v.y = -(((2.0f * ptCursor.y) / kGameHeight) - 1) / mMatProj._22;
-		v.z = 1.0f;
-
-		// Get the inverse view matrix
-
-		D3DXMATRIX matWorld;
-		mDevice->GetTransform(D3DTS_WORLD, &matWorld);
-		D3DXMATRIX mWorldView = mMatView;
-		D3DXMATRIX m;
-		D3DXMatrixInverse(&m, NULL, &mWorldView);
-
-		// Transform the screen space pick ray into 3D space
-		D3DXVECTOR3 vPickRayDir, vPickRayOrig;
-		vPickRayDir.x = v.x * m._11 + v.y * m._21 + v.z * m._31;
-		vPickRayDir.y = v.x * m._12 + v.y * m._22 + v.z * m._32;
-		vPickRayDir.z = v.x * m._13 + v.y * m._23 + v.z * m._33;
-		vPickRayOrig.x = m._41;
-		vPickRayOrig.y = m._42;
-		vPickRayOrig.z = m._43;
-
-		//D3DXVECTOR3 rayDir = rayend - rayorigin;
-		
-		//D3DXVec3Normalize(&rayDir, &rayDir);
 		int i = 0;
 	}
 	else
@@ -670,14 +685,22 @@ void Game::createMainMenu()
 		std::shared_ptr<Geometry> buttonGeo = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice);
 		std::shared_ptr<Texture> buttonTex = mTextureManager->createTexture("png\\Button.png");
 		std::shared_ptr<Renderable> buttonRender = std::make_shared<Renderable>();
+		std::shared_ptr<BoundingBox> boundingBox = std::make_shared<BoundingBox>();
+		std::shared_ptr<Button> button = std::make_shared<Button>();
 
 		buttonObj->init(mDevice);
 		buttonRender->init(buttonGeo, buttonTex);
+		boundingBox->init(buttonGeo->getTopLeft(), buttonGeo->getBottomRight(), nullptr);
+		button->init(boundingBox.get(), [this]() {this->startPlay(); });
+		
 		buttonObj->addComponent(buttonRender);
+		buttonObj->addComponent(boundingBox);
+		buttonObj->addComponent(button);
 		
 		buttonObj->setWorldScale(10.0f, buttonHeight, 1.0f);
 		buttonObj->setLocalPos(0.0f, startY - (buttonHeight + buttonSpace)*i, -0.1f);
 		mMainMenu->addChild(buttonObj);
+		mButtons.push_back(button);
 	}
 
 
