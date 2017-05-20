@@ -62,7 +62,8 @@ protected:
 	
 	std::vector<std::shared_ptr<GameObject>> mBarriersReserve;
 	std::unordered_set<std::shared_ptr<GameObject>> mBarriersActive;
-	std::vector<GameObject*> mGroundObjects;
+	
+	std::shared_ptr<GroundObjectController> mGroundController = nullptr;
 	
 	std::shared_ptr<GameObject> mMainMenu = nullptr;
 	std::shared_ptr<GameObject> mHighScoreMenu = nullptr;

@@ -78,6 +78,9 @@
     <ClInclude Include="BackgroundController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GroundObjectController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -129,6 +132,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BackgroundController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GroundObjectController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

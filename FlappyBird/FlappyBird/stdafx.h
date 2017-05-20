@@ -44,6 +44,7 @@
 #include "HighScoreDialog.h"
 #include "Bird.h"
 #include "BackgroundController.h"
+#include "GroundObjectController.h"
 
 #include "TextureManager.h"
 #include "GameObject.h"

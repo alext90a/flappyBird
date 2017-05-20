@@ -159,6 +159,7 @@
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="GeometryManager.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="GroundObjectController.h" />
     <ClInclude Include="HighScoreDialog.h" />
     <ClInclude Include="HighscoreLine.h" />
     <ClInclude Include="Resource.h" />
@@ -180,6 +181,7 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="GeometryManager.cpp" />
+    <ClCompile Include="GroundObjectController.cpp" />
     <ClCompile Include="HighScoreDialog.cpp" />
     <ClCompile Include="HighscoreLine.cpp" />
     <ClCompile Include="Sprite.cpp" />

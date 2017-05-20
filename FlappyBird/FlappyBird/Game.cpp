@@ -220,6 +220,11 @@ HRESULT Game::initGeometry()
 	}
 
 	//create ground
+	std::shared_ptr<GameObject> groundParentObject(std::make_shared<GameObject>());
+	groundParentObject->init(mDevice);
+	mGroundController = std::make_shared<GroundObjectController>();
+	groundParentObject->addComponent(mGroundController);
+	mGroundController->setPlayer(mPlayer);
 	for (int i = 0; i < 3; ++i)
 	{
 		std::shared_ptr<GameObject> groundObject(std::make_shared<GameObject>());
@@ -232,10 +237,12 @@ HRESULT Game::initGeometry()
 		groundObject->setLocalScale(2.0f, 2.0f, 1.0f);
 		groundObject->setLocalPosY(-10.0f);
 		groundObject->setLocalPosX(kGroundWidth*i);
-		mGameObjectLayers[kGroundLayer]->push_back(groundObject);
-		mGroundObjects.push_back(groundObject.get());
+		
+		
+		groundParentObject->addChild(groundObject);
+		mGroundController->addGroundObject(groundObject.get());
 	}
-	
+	mGameObjectLayers[kGroundLayer]->push_back(groundParentObject);
 
 	createBackground();
 	createMainMenu();
@@ -514,15 +521,7 @@ void Game::update()
 	checkCollideables();
 
 	
-	for (unsigned int i = 0; i < mGroundObjects.size(); ++i)
-	{
-		GameObject* curObj = mGroundObjects[i];
-		if (mPlayer->getGameObject()->getLocalPosX() - curObj->getLocalPosX() > kObjLiveMaxDistance)
-		{
-			int nextInd = (i + mGroundObjects.size() - 1) % mGroundObjects.size();
-			curObj->setLocalPosX(mGroundObjects[nextInd]->getLocalPosX()+kGroundWidth);
-		}
-	}
+	
 }
 
 void Game::checkCollideables()
@@ -758,10 +757,7 @@ void Game::startPlay()
 	mBarriersActive.clear();
 
 	mBackgroundController->setStartPos();
-	for (unsigned int i = 0; i < mGroundObjects.size(); ++i)
-	{
-		mGroundObjects[i]->setLocalPosX(i*kGroundWidth);
-	}
+	mGroundController->setStartPos();
 
 	mMainMenu->setEnabled(false);
 	updateScoreText();
