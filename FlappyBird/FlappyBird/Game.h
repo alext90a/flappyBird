@@ -57,16 +57,18 @@ protected:
 	std::vector<const BoundingBox*> mCollideableLayer;
 	std::vector<const BoundingBox*> mBonusLayer;
 
-	std::vector<std::shared_ptr<GameObject>> mGameObjects;
-	std::vector<std::shared_ptr<GameObject>> mBackgroundObjects;
-	std::vector<std::shared_ptr<GameObject>> mObjectsReserve;
-	std::unordered_set<std::shared_ptr<GameObject>> mActiveObject;
+	std::map<int, std::shared_ptr<std::vector<std::shared_ptr<GameObject>>>> mGameObjectLayers;
+
+	
+	std::vector<std::shared_ptr<GameObject>> mBarriersReserve;
+	std::unordered_set<std::shared_ptr<GameObject>> mBarriersActive;
 	std::vector<GameObject*> mGroundObjects;
 	
 	std::shared_ptr<GameObject> mMainMenu = nullptr;
 	std::shared_ptr<GameObject> mHighScoreMenu = nullptr;
 	std::vector<Button*> mButtons;
 	std::shared_ptr<HighScoreDialog> mHighScoreDialog = nullptr;
+	std::shared_ptr<BackgroundController> mBackgroundController = nullptr;
 	
 
 	static DWORD mLastUpdateTime;

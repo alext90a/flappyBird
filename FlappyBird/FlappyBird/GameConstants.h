@@ -27,3 +27,8 @@ static const int kHighscoreLines = 5;
 static const float kPlayerXOffset = 9.0f;
 static const float kGroundWidth = 20.f;
 
+static const int kBackgroundLayer = 0;
+static const int kGroundLayer = 1;
+static const int kBarrierLayer = 2;
+static const int kPlayerLayer = 3;
+

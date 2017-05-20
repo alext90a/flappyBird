@@ -6,8 +6,16 @@ DWORD Game::mLastUpdateTime = 0;
 
 Game::Game()
 {
-	mGameObjects.reserve(kMaxGameObjects);
-	mActiveObject.reserve(kMaxBarriers);
+	for (int i = 0; i < kPlayerLayer+1; ++i)
+	{
+		std::shared_ptr<std::vector<std::shared_ptr<GameObject>>> layer(std::make_shared<std::vector<std::shared_ptr<GameObject>>>());
+		layer->reserve(kMaxGameObjects);
+		mGameObjectLayers.insert(std::make_pair(i, layer));
+	}
+	
+
+
+	mBarriersActive.reserve(kMaxBarriers);
 	mCollideableLayer.reserve(kMaxGameObjects);
 	mBonusLayer.reserve(kMaxGameObjects);
 	mButtons.reserve(kMaxGameObjects);
@@ -46,24 +54,29 @@ void Game::close()
 	GameObject::mObjects;
 	
 	
-	for (auto curObj : mGameObjects)
+	for (auto curLayer : mGameObjectLayers)
 	{
-		curObj->clean();
-		curObj.reset();
+		std::shared_ptr<std::vector<std::shared_ptr<GameObject>>> curVectorPtr = curLayer.second;
+		for (auto curObj : *curVectorPtr)
+		{
+			curObj->clean();
+			curObj.reset();
+		}
+		
 	}
-	mGameObjects.clear();
+	mGameObjectLayers.clear();
 
-	for (auto curObj : mActiveObject)
+	for (auto curObj : mBarriersActive)
 	{
 		curObj.reset();
 	}
-	mActiveObject.clear();
+	mBarriersActive.clear();
 
-	for (auto curObj : mObjectsReserve)
+	for (auto curObj : mBarriersReserve)
 	{
 		curObj.reset();
 	}
-	mObjectsReserve.clear();
+	mBarriersReserve.clear();
 
 	if (mMainMenu)
 	{
@@ -73,12 +86,7 @@ void Game::close()
 		mMainMenu.reset();
 		mHighScoreDialog.reset();
 	}
-	for (auto curObj : mBackgroundObjects)
-	{
-		curObj->clean();
-		curObj.reset();
-	}
-	mBackgroundObjects.clear();
+
 
 	if (mPlayer)
 	{
@@ -159,7 +167,7 @@ HRESULT Game::initGeometry()
 	
 	
 
-	createBackground();
+	
 	
 	//create player
 	std::shared_ptr<GameObject> playerGameObj = std::make_shared<GameObject>();
@@ -182,7 +190,7 @@ HRESULT Game::initGeometry()
 	mPlayer->start();
 	mPlayer->setOnPlayerCrashed([this]() {this->onPlayerCrashed(); });
 	
-	mGameObjects.push_back(playerGameObj);
+	mGameObjectLayers[kPlayerLayer]->push_back(playerGameObj);
 	
 	//==============================================
 	
@@ -205,7 +213,8 @@ HRESULT Game::initGeometry()
 		if (barrier != nullptr)
 		{
 			barrier->setEnabled(false);
-			mObjectsReserve.push_back(barrier);
+			mBarriersReserve.push_back(barrier);
+			mGameObjectLayers[kBarrierLayer]->push_back(barrier);
 		}
 		
 	}
@@ -223,12 +232,12 @@ HRESULT Game::initGeometry()
 		groundObject->setLocalScale(2.0f, 2.0f, 1.0f);
 		groundObject->setLocalPosY(-10.0f);
 		groundObject->setLocalPosX(kGroundWidth*i);
-		mGameObjects.push_back(groundObject);
+		mGameObjectLayers[kGroundLayer]->push_back(groundObject);
 		mGroundObjects.push_back(groundObject.get());
 	}
 	
 
-	
+	createBackground();
 	createMainMenu();
 	createHighscoreMenu();
 	
@@ -406,6 +415,10 @@ std::shared_ptr<GameObject> Game::createBarrierTop()
 
 void Game::createBackground()
 {
+	std::shared_ptr<GameObject> backgroundParent(std::make_shared<GameObject>());
+	mBackgroundController = std::make_shared<BackgroundController>();
+	backgroundParent->init(mDevice);
+	backgroundParent->addComponent(mBackgroundController);
 	float startX = -kBackgroundWidth;
 	float halfWidth = kBackgroundWidth/2.0f;
 	for (int i = 0; i < 3; ++i)
@@ -420,9 +433,11 @@ void Game::createBackground()
 		background->setLocalScale(kBackgroundWidth, kBackgroundWidth*1.2f, 1.0f);
 		background->addLocalPos(startX + 2.0f* halfWidth*(float)i, 0.0f, 1.0f);
 		
-		mBackgroundObjects.push_back(background);
+		backgroundParent->addChild(background);
+		mBackgroundController->insertBackgroundObject(background);
 	}
-	
+	mBackgroundController->setPlayer(mPlayer);
+	mGameObjectLayers[kBackgroundLayer]->push_back(backgroundParent);
 
 }
 
@@ -467,25 +482,29 @@ void Game::update()
 	{
 		return;
 	}
-	for (auto curObj : mGameObjects)
+	for (auto curLayer : mGameObjectLayers)
 	{
-		curObj->update();
+		for (auto curObj : *curLayer.second)
+		{
+			curObj->update();
+		}
+		
 	}
 
 	mTimeSinceLastBarrierSpawn += mDeltaTime;
 	if (mTimeSinceLastBarrierSpawn >= kBarrierTimeSpawn)
 	{
-		if (!mObjectsReserve.empty())
+		if (!mBarriersReserve.empty())
 		{
-			int randomIndex = getRandomInt(0, mObjectsReserve.size() - 1);
+			int randomIndex = getRandomInt(0, mBarriersReserve.size() - 1);
 			
-			auto curObj = mObjectsReserve[randomIndex];
-			mObjectsReserve[randomIndex] = mObjectsReserve[mObjectsReserve.size() - 1];
-			mObjectsReserve.pop_back();
+			auto curObj = mBarriersReserve[randomIndex];
+			mBarriersReserve[randomIndex] = mBarriersReserve[mBarriersReserve.size() - 1];
+			mBarriersReserve.pop_back();
 			curObj->setEnabled(true);
 			curObj->setLocalPosX(mPlayer->getGameObject()->getLocalPosX() + kBarrierXStartOffset);
 			
-			mActiveObject.insert(curObj);
+			mBarriersActive.insert(curObj);
 			mTimeSinceLastBarrierSpawn = 0.0f;
 		}
 		
@@ -494,14 +513,7 @@ void Game::update()
 	
 	checkCollideables();
 
-	for (unsigned int i = 0; i < mBackgroundObjects.size(); ++i)
-	{
-
-		float displacement = mPlayer->getSpeed() * mDeltaTime;
-		mBackgroundObjects[i]->addLocalPosX(displacement);
-
-
-	}
+	
 	for (unsigned int i = 0; i < mGroundObjects.size(); ++i)
 	{
 		GameObject* curObj = mGroundObjects[i];
@@ -574,18 +586,18 @@ void Game::render()
 		// Setup the world, view, and projection matrices
 		SetupMatrices();
 		
-		
+		/*
 		for (unsigned int i=0; i < mBackgroundObjects.size(); ++i)
 		{
 			mBackgroundObjects[i]->draw();
 		}
-		
+		*/
 		
 		std::list<std::shared_ptr<GameObject>> removeList;
-		for (auto curObj : mActiveObject)
+		for (auto curObj : mBarriersActive)
 		{
 			
-			curObj->draw();
+			//curObj->draw();
 			if ((mPlayer->getGameObject()->getLocalPosX() - curObj->getLocalPosX()) >= kObjLiveMaxDistance)
 			{
 				removeList.push_back(curObj);
@@ -596,13 +608,17 @@ void Game::render()
 		
 		for (auto curRemove : removeList)
 		{
-			mActiveObject.erase(curRemove);
-			mObjectsReserve.push_back(curRemove);
+			mBarriersActive.erase(curRemove);
+			mBarriersReserve.push_back(curRemove);
 		}
 		
-		for (auto curObj : mGameObjects)
+		for (auto curLayer : mGameObjectLayers)
 		{
-			curObj->draw();
+			for (auto curObj : *curLayer.second)
+			{
+				curObj->draw();
+			}
+			
 		}
 
 		if (mIsOnMenu)
@@ -734,20 +750,14 @@ void Game::startPlay()
 {
 	mIsOnMenu = false;
 	mPlayer->start();
-	for (auto curObj : mActiveObject)
+	for (auto curObj : mBarriersActive)
 	{
 		curObj->setEnabled(false);
-		mObjectsReserve.push_back(curObj);
+		mBarriersReserve.push_back(curObj);
 	}
-	mActiveObject.clear();
+	mBarriersActive.clear();
 
-	float startX = -kBackgroundWidth;
-	float halfWidth = kBackgroundWidth / 2.0f;
-	for (unsigned int i = 0; i < mBackgroundObjects.size(); ++i)
-	{
-		mBackgroundObjects[i]->setLocalPos(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-		mBackgroundObjects[i]->addLocalPos(startX + 2.0f* halfWidth*(float)i, 0.0f, 1.0f);
-	}
+	mBackgroundController->setStartPos();
 	for (unsigned int i = 0; i < mGroundObjects.size(); ++i)
 	{
 		mGroundObjects[i]->setLocalPosX(i*kGroundWidth);

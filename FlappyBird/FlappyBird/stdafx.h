@@ -43,6 +43,7 @@
 #include "HighscoreLine.h"
 #include "HighScoreDialog.h"
 #include "Bird.h"
+#include "BackgroundController.h"
 
 #include "TextureManager.h"
 #include "GameObject.h"
