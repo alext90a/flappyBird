@@ -36,6 +36,7 @@ protected:
 	void updateScoreText();
 	void createMainMenu();
 	void createHighscoreMenu();
+	void createPlayerHud();
 protected:
 	LPDIRECT3D9             g_pD3D = NULL; // Used to create the D3DDevice
 	LPDIRECT3DDEVICE9       mDevice = NULL; // Our rendering device
@@ -47,12 +48,14 @@ protected:
 	std::shared_ptr<BoundingBox> mPlayerBounds = nullptr;
 	
 	
-
-	std::string mTestText = "Hello word!";
+	/*
+	std::string mTestText = "Hello world!";
 	RECT textbox;
 
 	std::string mScoreText = "Score: 0";
 	RECT mScoreRect;
+	*/
+	std::shared_ptr<PlayerHud> mPlayerHud = nullptr;
 
 	std::vector<const BoundingBox*> mCollideableLayer;
 	std::vector<const BoundingBox*> mBonusLayer;
@@ -66,7 +69,6 @@ protected:
 	std::shared_ptr<GroundObjectController> mGroundController = nullptr;
 	
 	std::shared_ptr<GameObject> mMainMenu = nullptr;
-	std::shared_ptr<GameObject> mHighScoreMenu = nullptr;
 	std::vector<Button*> mButtons;
 	std::shared_ptr<HighScoreDialog> mHighScoreDialog = nullptr;
 	std::shared_ptr<BackgroundController> mBackgroundController = nullptr;

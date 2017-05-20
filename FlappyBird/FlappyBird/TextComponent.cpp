@@ -44,3 +44,8 @@ void TextComponent::setColor(const D3DCOLOR& color)
 {
 	mColor = color;
 }
+
+const std::string& TextComponent::getText()const
+{
+	return mText;
+}

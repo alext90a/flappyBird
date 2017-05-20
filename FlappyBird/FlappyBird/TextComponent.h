@@ -9,6 +9,7 @@ public:
 	void setText(const std::string& text);
 	void setPos(int screenLeftX, int screenTopY, int screenRightX, int screenBottomY);
 	void setColor(const D3DCOLOR& color);
+	const std::string& getText()const;
 
 protected:
 	LPD3DXFONT*	mFont;

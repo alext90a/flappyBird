@@ -45,6 +45,7 @@
 #include "Bird.h"
 #include "BackgroundController.h"
 #include "GroundObjectController.h"
+#include "PlayerHud.h"
 
 #include "TextureManager.h"
 #include "GameObject.h"

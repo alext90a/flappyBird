@@ -34,3 +34,8 @@ void HighscoreLine::setColor(const D3DCOLOR& color)
 	mNameTextComponent->setColor(color);
 	mScoreTextComponent->setColor(color);
 }
+
+const std::string& HighscoreLine::getName()const
+{
+	return mNameTextComponent->getText();
+}

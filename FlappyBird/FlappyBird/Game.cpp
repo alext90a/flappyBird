@@ -6,7 +6,7 @@ DWORD Game::mLastUpdateTime = 0;
 
 Game::Game()
 {
-	for (int i = 0; i < kPlayerLayer+1; ++i)
+	for (int i = 0; i < kMenuLayer+1; ++i)
 	{
 		std::shared_ptr<std::vector<std::shared_ptr<GameObject>>> layer(std::make_shared<std::vector<std::shared_ptr<GameObject>>>());
 		layer->reserve(kMaxGameObjects);
@@ -44,6 +44,7 @@ HRESULT Game::init(HWND hWnd)
 	{
 		return E_FAIL;
 	}
+	showMainMenu();
 	mLastUpdateTime = timeGetTime();
 	
 	return S_OK;
@@ -78,21 +79,14 @@ void Game::close()
 	}
 	mBarriersReserve.clear();
 
-	if (mMainMenu)
-	{
-		mMainMenu->clean();
-		mHighScoreMenu->clean();
-		mHighScoreMenu.reset();
-		mMainMenu.reset();
-		mHighScoreDialog.reset();
-	}
 
+	mMainMenu->clean();
+	mMainMenu.reset();
+	mHighScoreDialog.reset();
 
-	if (mPlayer)
-	{
-		mPlayer->clean();
-		mPlayer.reset();
-	}
+	mPlayer->clean();
+	mPlayer.reset();
+
 	
 	mButtons.clear();
 
@@ -247,11 +241,8 @@ HRESULT Game::initGeometry()
 	createBackground();
 	createMainMenu();
 	createHighscoreMenu();
-	
+	createPlayerHud();
 
-	SetRect(&textbox, 0, 0, kGameWidth, kGameHeight);
-	SetRect(&mScoreRect, kGameWidth/2, 0, kGameWidth, 30);
-	
 	D3DXCreateFont(mDevice,    // the D3D Device
 		24,    // font height
 		0,    // default font width
@@ -266,6 +257,30 @@ HRESULT Game::initGeometry()
 		&g_Font);    // the font object
 	
 	return S_OK;
+}
+
+void Game::createPlayerHud()
+{
+	std::shared_ptr<GameObject> hudObject(std::make_shared<GameObject>());
+	hudObject->init(mDevice);
+	std::shared_ptr<TextComponent> scoreText(std::make_shared<TextComponent>());
+	std::shared_ptr<TextComponent> messageText(std::make_shared<TextComponent>());
+	scoreText->setPos(kGameWidth / 2, 0, kGameWidth, 30);
+	scoreText->init(&g_Font);
+	scoreText->setColor(D3DCOLOR_RGBA(255, 255, 255, 255));
+	hudObject->addComponent(scoreText);
+	messageText->setPos(0, 0, kGameWidth, kGameHeight);
+	messageText->init(&g_Font);
+	messageText->setColor(D3DCOLOR_RGBA(0, 255, 0, 255));
+	hudObject->addComponent(messageText);
+
+	mPlayerHud = std::make_shared<PlayerHud>();
+	mPlayerHud->setMessageComponent(messageText);
+	mPlayerHud->setScoreComponent(scoreText);
+	hudObject->addComponent(mPlayerHud);
+	mGameObjectLayers[kMenuLayer]->push_back(hudObject);
+
+	mPlayerHud->show(true);
 }
 
 std::shared_ptr<GameObject> Game::createBarrierBottom()
@@ -538,7 +553,7 @@ void Game::checkCollideables()
 		if (curBoundingBox->isIntersect(playerBoundingBox))
 			
 		{
-			mTestText = "object collided!";
+			mPlayerHud->setMessage("object collided!");
 			mPlayer->setFallDawnState();
 			return;
 		}
@@ -556,7 +571,7 @@ void Game::checkCollideables()
 			curBonusBox->getGameObject()->setEnabled(false);
 			mPlayer->addScore(1);
 			updateScoreText();
-			mTestText = "bonus acheived!";
+			mPlayerHud->setMessage("bonus acheived!");
 			return;
 		}
 	}
@@ -567,7 +582,7 @@ void Game::checkCollideables()
 void Game::updateScoreText()
 {
 	
-	mScoreText = "Score: " + std::to_string(mPlayer->getScore());
+	mPlayerHud->setScore("Score: " + std::to_string(mPlayer->getScore()));
 }
 
 void Game::render()
@@ -599,6 +614,7 @@ void Game::render()
 			//curObj->draw();
 			if ((mPlayer->getGameObject()->getLocalPosX() - curObj->getLocalPosX()) >= kObjLiveMaxDistance)
 			{
+				curObj->setEnabled(false);
 				removeList.push_back(curObj);
 			}
 
@@ -626,24 +642,11 @@ void Game::render()
 			mMainMenu->setLocalPosX(mPlayer->getGameObject()->getLocalPosX()+kPlayerXOffset);
 			mMainMenu->draw();
 			
-			mHighScoreMenu->setLocalPosX(mPlayer->getGameObject()->getLocalPosX()+kPlayerXOffset);
-			mHighScoreMenu->draw();
+			mHighScoreDialog->getGameObject()->setLocalPosX(mPlayer->getGameObject()->getLocalPosX()+kPlayerXOffset);
 			
 		}
 		
-		g_Font->DrawTextA(NULL,
-			mTestText.c_str(),
-			strlen(mTestText.c_str()),
-			&textbox,
-			DT_LEFT | DT_TOP,
-			D3DCOLOR_RGBA(255, 1, 1, 255));
 
-		g_Font->DrawTextA(NULL,
-			mScoreText.c_str(),
-			strlen(mTestText.c_str()),
-			&mScoreRect,
-			DT_LEFT | DT_TOP,
-			D3DCOLOR_RGBA(255, 1, 1, 255));
 		
 		// End the scene
 		mDevice->EndScene();
@@ -748,6 +751,7 @@ void Game::onPlayerCrashed()
 void Game::startPlay()
 {
 	mIsOnMenu = false;
+	mPlayerHud->show(true);
 	mPlayer->start();
 	for (auto curObj : mBarriersActive)
 	{
@@ -761,6 +765,7 @@ void Game::startPlay()
 
 	mMainMenu->setEnabled(false);
 	updateScoreText();
+	mTimeSinceLastBarrierSpawn = 0.0f;
 }
 
 void Game::createMainMenu()
@@ -806,6 +811,7 @@ void Game::createMainMenu()
 	}
 	mButtons[0]->setFunc([this]() {this->startPlay(); });
 	mButtons[1]->setFunc([this]() {
+		mPlayerHud->show(false);
 		mMainMenu->setEnabled(false);
 		mHighScoreDialog->showDialog(); 
 	});
@@ -821,17 +827,17 @@ void Game::createMainMenu()
 void Game::createHighscoreMenu()
 {
 	
-	mHighScoreMenu = std::make_shared<GameObject>();
+	std::shared_ptr<GameObject> highScoreMenuObject(std::make_shared<GameObject>());
 	std::shared_ptr<Geometry> geometry = mGeometryManager->getGeometry(GEOMETRY::POLY_1X1, mDevice);
 	std::shared_ptr<Texture> texture = mTextureManager->createTexture("png\\Menu.png");
 	std::shared_ptr<Renderable> render = std::make_shared<Renderable>();
 	mHighScoreDialog = std::make_shared<HighScoreDialog>();
 
-	mHighScoreMenu->init(mDevice);
+	highScoreMenuObject->init(mDevice);
 	render->init(geometry, texture);
-	mHighScoreMenu->addComponent(render);
-	mHighScoreMenu->setLocalScale(13.0f, 18.0f, 1.0f);
-	mHighScoreMenu->addComponent(mHighScoreDialog);
+	highScoreMenuObject->addComponent(render);
+	highScoreMenuObject->setLocalScale(13.0f, 18.0f, 1.0f);
+	highScoreMenuObject->addComponent(mHighScoreDialog);
 
 	std::shared_ptr<GameObject> highScoreImgObj = std::make_shared<GameObject>();
 	std::shared_ptr<Renderable> highScoreImgRend = std::make_shared<Renderable>();
@@ -840,7 +846,7 @@ void Game::createHighscoreMenu()
 	highScoreImgObj->addComponent(highScoreImgRend);
 	highScoreImgObj->setLocalScale(3.0f, 5.0f, 1.0f);
 	highScoreImgObj->setLocalPos(D3DXVECTOR3(0.0f, 6.0f, -0.1f));
-	mHighScoreMenu->addChild(highScoreImgObj);
+	highScoreMenuObject->addChild(highScoreImgObj);
 
 
 	for (int i = 0; i < kHighscoreLines; ++i)
@@ -850,17 +856,17 @@ void Game::createHighscoreMenu()
 		nameTextComponent->setText("Computer");
 		//textComponent->setPos(kGameWidth / 2.0f - 100.0f, kGameHeight / 2 - 100.0f + 40 * i, kGameWidth + 100, kGameHeight / 2.0f - 100.0f + 20 * i);
 		nameTextComponent->setPos(kGameWidth / 2 - 100, kGameHeight / 2 - 100 + 30 * i, kGameWidth, kGameHeight);
-		mHighScoreMenu->addComponent(nameTextComponent);
+		highScoreMenuObject->addComponent(nameTextComponent);
 
 		std::shared_ptr<TextComponent> scoreTextComponent = std::make_shared<TextComponent>();
 		scoreTextComponent->init(&g_Font);
 		scoreTextComponent->setPos(kGameWidth/2 + 100, kGameHeight / 2 - 100 + 30 * i, kGameWidth, kGameHeight);
-		mHighScoreMenu->addComponent(scoreTextComponent);
+		highScoreMenuObject->addComponent(scoreTextComponent);
 
 		std::shared_ptr<HighscoreLine> scoreLine = std::make_shared<HighscoreLine>();
 		scoreLine->setTextComponent(nameTextComponent.get(), scoreTextComponent.get());
 		scoreLine->setValue("Computer", 10 - i);
-		mHighScoreMenu->addComponent(scoreLine);
+		highScoreMenuObject->addComponent(scoreLine);
 		mHighScoreDialog->addHighScoreLine(scoreLine.get());
 	}
 
@@ -884,24 +890,27 @@ void Game::createHighscoreMenu()
 
 	buttonObj->setWorldScale(4.0f, kButtonHeight/1.5f, 1.0f);
 	buttonObj->setLocalPos(0.0f, -5, -0.1f);
-	mHighScoreMenu->addChild(buttonObj);
+	highScoreMenuObject->addChild(buttonObj);
 	mButtons.push_back(button.get());
 	
-	mHighScoreMenu->setLocalPos(D3DXVECTOR3(0.0f, 0.0f, -1.0f));
-	
+	highScoreMenuObject->setLocalPos(D3DXVECTOR3(0.0f, 0.0f, -1.0f));
+	mGameObjectLayers[kMenuLayer]->push_back(highScoreMenuObject);
+	mHighScoreDialog->closeDialog();
 }
 
 void Game::showMainMenu()
 {
 	mIsOnMenu = true;
+	mPlayerHud->show(false);
 	mMainMenu->setEnabled(true);
-	mHighScoreMenu->setEnabled(false);
+	mHighScoreDialog->closeDialog();
 }
 
 void Game::showHighScore()
 {
 	mIsOnMenu = true;
-	mHighScoreMenu->setEnabled(true);
+	mPlayerHud->show(false);
+	mHighScoreDialog->showDialog();
 	mMainMenu->setEnabled(false);
 	
 }

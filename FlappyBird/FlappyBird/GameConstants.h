@@ -31,4 +31,5 @@ static const int kBackgroundLayer = 0;
 static const int kGroundLayer = 1;
 static const int kBarrierLayer = 2;
 static const int kPlayerLayer = 3;
+static const int kMenuLayer = 4;
 
