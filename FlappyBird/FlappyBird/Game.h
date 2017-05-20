@@ -41,46 +41,33 @@ protected:
 	LPDIRECT3D9             g_pD3D = NULL; // Used to create the D3DDevice
 	LPDIRECT3DDEVICE9       mDevice = NULL; // Our rendering device
 	LPD3DXFONT				g_Font = NULL;
-	//LPDIRECT3DTEXTURE9      g_pTexture = NULL; // Our texture
+
 	std::unique_ptr<TextureManager> mTextureManager = std::make_unique<TextureManager>();
 	std::unique_ptr<GeometryManager> mGeometryManager = std::make_unique<GeometryManager>();
+	std::map<int, std::shared_ptr<std::vector<std::shared_ptr<GameObject>>>> mGameObjectLayers;
+
+	static DWORD mLastUpdateTime;
+	float mTimeSinceLastBarrierSpawn;
+	D3DXMATRIXA16 mMatView;
+	D3DXMATRIXA16 mMatProj;
+	HWND mHwnd;
+	
+
 	std::shared_ptr<Bird> mPlayer = nullptr;
 	std::shared_ptr<BoundingBox> mPlayerBounds = nullptr;
-	
-	
-	/*
-	std::string mTestText = "Hello world!";
-	RECT textbox;
-
-	std::string mScoreText = "Score: 0";
-	RECT mScoreRect;
-	*/
 	std::shared_ptr<PlayerHud> mPlayerHud = nullptr;
 
 	std::vector<const BoundingBox*> mCollideableLayer;
 	std::vector<const BoundingBox*> mBonusLayer;
 
-	std::map<int, std::shared_ptr<std::vector<std::shared_ptr<GameObject>>>> mGameObjectLayers;
-
-	
 	std::vector<std::shared_ptr<GameObject>> mBarriersReserve;
 	std::unordered_set<std::shared_ptr<GameObject>> mBarriersActive;
-	
+
 	std::shared_ptr<GroundObjectController> mGroundController = nullptr;
-	
 	std::shared_ptr<GameObject> mMainMenu = nullptr;
 	std::vector<Button*> mButtons;
 	std::shared_ptr<HighScoreDialog> mHighScoreDialog = nullptr;
 	std::shared_ptr<BackgroundController> mBackgroundController = nullptr;
-	
-
-	static DWORD mLastUpdateTime;
-	float mTimeSinceLastBarrierSpawn;
-
 	bool mIsOnMenu = true;
-
-	D3DXMATRIXA16 mMatView;
-	D3DXMATRIXA16 mMatProj;
-	HWND mHwnd;
 };
 
