@@ -12,7 +12,7 @@ Texture::~Texture()
 	clean();
 }
 
-HRESULT Texture::create(LPDIRECT3DDEVICE9 device, std::string filePath)
+HRESULT Texture::create(LPDIRECT3DDEVICE9 device, const std::string& filePath)
 {
 	g_pd3dDevice = device;
 	if (FAILED(D3DXCreateTextureFromFile(g_pd3dDevice, filePath.c_str(), &g_pTexture)))
@@ -20,7 +20,8 @@ HRESULT Texture::create(LPDIRECT3DDEVICE9 device, std::string filePath)
 		// If texture is not in current folder, try parent folder
 		if (FAILED(D3DXCreateTextureFromFile(g_pd3dDevice, filePath.c_str(), &g_pTexture)))
 		{
-			MessageBox(NULL, "Could not find banana.bmp", "Textures.exe", MB_OK);
+			std::string errorMessage = "Could not find " + filePath;
+			MessageBox(NULL, errorMessage.c_str(), kGameName.c_str(), MB_OK);
 			return E_FAIL;
 		}
 	}

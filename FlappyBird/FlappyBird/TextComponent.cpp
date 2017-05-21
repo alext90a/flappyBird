@@ -26,7 +26,7 @@ void TextComponent::draw()
 		mText.c_str(),
 		strlen(mText.c_str()),
 		&mTextRect,
-		DT_LEFT | DT_TOP,
+		mHorAlign | DT_TOP,
 		mColor);
 }
 
@@ -48,4 +48,9 @@ void TextComponent::setColor(const D3DCOLOR& color)
 const std::string& TextComponent::getText()const
 {
 	return mText;
+}
+
+void TextComponent::setHorizontalAlign(DWORD horAlign)
+{
+	mHorAlign = horAlign;
 }

@@ -6,7 +6,7 @@ class Texture
 public:
 	
 	~Texture();
-	HRESULT create(LPDIRECT3DDEVICE9 device, std::string filePath);
+	HRESULT create(LPDIRECT3DDEVICE9 device, const std::string& filePath);
 	void draw();
 
 	

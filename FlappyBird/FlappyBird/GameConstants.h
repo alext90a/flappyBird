@@ -1,5 +1,6 @@
 #pragma once
 
+static const std::string kGameName = "Falling bird";
 
 static const int kCollideable = 100;
 static const int kMaxGameObjects = 100;

@@ -122,7 +122,7 @@ INT WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, INT)
 	RegisterClassEx(&wc);
 
 	// Create the application's window
-	HWND hWnd = CreateWindow("D3D Tutorial", "D3D Tutorial 05: Textures",
+	HWND hWnd = CreateWindow("D3D Tutorial", kGameName.c_str(),
 		WS_SYSMENU, 100, 100, kGameWidth, kGameHeight,
 		NULL, NULL, wc.hInstance, NULL);
 

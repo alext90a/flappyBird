@@ -10,11 +10,13 @@ public:
 	void setPos(int screenLeftX, int screenTopY, int screenRightX, int screenBottomY);
 	void setColor(const D3DCOLOR& color);
 	const std::string& getText()const;
+	void setHorizontalAlign(DWORD horAlign);
 
 protected:
 	LPD3DXFONT	mFont;
 	RECT mTextRect;
 	std::string mText;
 	D3DCOLOR mColor;
+	DWORD mHorAlign = DT_LEFT;
 };
 

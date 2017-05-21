@@ -190,9 +190,10 @@ void Game::createPlayerHud()
 	hudObject->init(mGameEngine->getDevice());
 	std::shared_ptr<TextComponent> scoreText(std::make_shared<TextComponent>());
 	std::shared_ptr<TextComponent> messageText(std::make_shared<TextComponent>());
-	scoreText->setPos(kGameWidth / 2, 0, kGameWidth, 30);
+	scoreText->setPos(0, 0, kGameWidth, 30);
 	scoreText->init(mGameEngine->getFont());
 	scoreText->setColor(D3DCOLOR_RGBA(255, 255, 255, 255));
+	scoreText->setHorizontalAlign(DT_CENTER);
 	hudObject->addComponent(scoreText);
 	messageText->setPos(0, 0, kGameWidth, kGameHeight);
 	messageText->init(mGameEngine->getFont());
