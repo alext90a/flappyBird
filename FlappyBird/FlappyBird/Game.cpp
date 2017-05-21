@@ -34,9 +34,9 @@ HRESULT Game::init(HWND hWnd)
 	{
 		return E_FAIL;
 	}
-	for (int i = 0; i < kMenuLayer + 1; ++i)
+	for (auto curLayer : kGameLayers)
 	{
-		mGameEngine->addLayer(i);
+		mGameEngine->addLayer(curLayer);
 	}
 
 	if (FAILED(initGeometry()))
@@ -52,38 +52,39 @@ void Game::close()
 {
 	
 
-	for (auto curObj : mBarriersActive)
-	{
-		curObj.reset();
-	}
+
 	mBarriersActive.clear();
-
-	for (auto curObj : mBarriersReserve)
-	{
-		curObj.reset();
-	}
+	mBonusLayer.clear();
+	mCollideableLayer.clear();
 	mBarriersReserve.clear();
-
-
-	mMainMenu->clean();
-	mMainMenu.reset();
-	mHighScoreDialog.reset();
-
-	mPlayer->clean();
-	mPlayer.reset();
-
-	
 	mButtons.clear();
 
 
-	mBonusLayer.clear();
-	mCollideableLayer.clear();
+
+
+
+	
+	
+	
+	mPlayer = nullptr;
+	mPlayerBounds = nullptr;
+	mPlayerHud = nullptr;
+	mBackgroundController = nullptr;
+	mGroundController = nullptr;
+	mMainMenu = nullptr;
+	mHighScoreDialog = nullptr;
+	mBackgroundController = nullptr;
+	
 	GameObject::mObjects;
 
 	
 	mGameEngine->close();
 	
-	ExitProcess(0);
+	Component::mAlived;
+	GameObject::mObjects;
+	
+	int i = 0;
+
 }
 
 
@@ -117,7 +118,6 @@ HRESULT Game::initGeometry()
 	
 	mPlayer = std::make_shared<Bird>();
 	playerGameObj->addComponent(mPlayer);
-	mPlayer->start();
 	mPlayer->setOnPlayerCrashed([this]() {this->onPlayerCrashed(); });
 	
 	mGameEngine->addGameObject(kPlayerLayer, playerGameObj);
@@ -366,23 +366,21 @@ void Game::createBackground()
 	mBackgroundController = std::make_shared<BackgroundController>();
 	backgroundParent->init(mGameEngine->getDevice());
 	backgroundParent->addComponent(mBackgroundController);
-	float startX = -kBackgroundWidth;
-	float halfWidth = kBackgroundWidth/2.0f;
-	for (int i = 0; i < 3; ++i)
-	{
-		std::shared_ptr<Texture> texture = mGameEngine->getTexture("png\\BG.png");
 
-		std::shared_ptr<GameObject> background = std::make_shared<GameObject>();
-		background->init(mGameEngine->getDevice());
-		std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
-		renderable->init(mGameEngine->getGeometry(GEOMETRY::POLY_1X1), texture);
-		background->addComponent(renderable);
-		background->setLocalScale(kBackgroundWidth, kBackgroundWidth*1.2f, 1.0f);
-		background->addLocalPos(startX + 2.0f* halfWidth*(float)i, 0.0f, 1.0f);
-		
-		backgroundParent->addChild(background);
-		mBackgroundController->insertBackgroundObject(background);
-	}
+
+	std::shared_ptr<Texture> texture = mGameEngine->getTexture("png\\BG.png");
+
+	std::shared_ptr<GameObject> background = std::make_shared<GameObject>();
+	background->init(mGameEngine->getDevice());
+	std::shared_ptr<Renderable> renderable = std::make_shared<Renderable>();
+	renderable->init(mGameEngine->getGeometry(GEOMETRY::POLY_1X1), texture);
+	background->addComponent(renderable);
+	background->setLocalScale(kBackgroundWidth, kBackgroundWidth, 1.0f);
+	background->addLocalPos(0, 0.0f, 1.0f);
+
+	backgroundParent->addChild(background);
+	mBackgroundController->insertBackgroundObject(background);
+
 	mBackgroundController->setPlayer(mPlayer);
 	mGameEngine->addGameObject(kBackgroundLayer, backgroundParent);
 
@@ -570,7 +568,6 @@ void Game::startPlay()
 	}
 	mBarriersActive.clear();
 
-	mBackgroundController->setStartPos();
 	mGroundController->setStartPos();
 
 	mMainMenu->setEnabled(false);
@@ -623,7 +620,7 @@ void Game::createMainMenu()
 	mButtons[1]->setFunc([this]() {
 		this->showHighScore(); 
 	});
-	mButtons[2]->setFunc([this]() {this->close(); });
+	mButtons[2]->setFunc([this]() {SendMessage(mGameEngine->getHwnd(), WM_DESTROY, 0, 0); });
 
 
 

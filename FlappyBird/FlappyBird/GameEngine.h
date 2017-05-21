@@ -18,7 +18,7 @@ public:
 	std::shared_ptr<Geometry> getGeometry(GEOMETRY goemetryType);
 	std::shared_ptr<Texture> getTexture(const std::string& name);
 	void getMouseWorldRay(D3DXVECTOR3& pickRayDir, D3DXVECTOR3& pickRayOrig);
-
+	HWND getHwnd();
 	void setCameraParams(const D3DXVECTOR3& eyePos, const D3DXVECTOR3& lookAt);
 protected:
 	HRESULT initD3D(HWND hWnd);

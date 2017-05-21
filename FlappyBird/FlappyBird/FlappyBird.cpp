@@ -111,19 +111,19 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 INT WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, INT)
 {
 	UNREFERENCED_PARAMETER(hInst);
-
+	HCURSOR hcursor = LoadCursor(0, IDC_ARROW);
 	// Register the window class
 	WNDCLASSEX wc =
 	{
 		sizeof(WNDCLASSEX), CS_CLASSDC, MsgProc, 0L, 0L,
-		GetModuleHandle(NULL), NULL, NULL, NULL, NULL,
+		GetModuleHandle(NULL), NULL, hcursor, NULL, NULL,
 		"D3D Tutorial", NULL
 	};
 	RegisterClassEx(&wc);
 
 	// Create the application's window
 	HWND hWnd = CreateWindow("D3D Tutorial", "D3D Tutorial 05: Textures",
-		WS_OVERLAPPEDWINDOW, 100, 100, kGameWidth, kGameHeight,
+		WS_SYSMENU, 100, 100, kGameWidth, kGameHeight,
 		NULL, NULL, wc.hInstance, NULL);
 
 	// Initialize Direct3D
@@ -134,7 +134,7 @@ INT WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, INT)
 			// Show the window
 		ShowWindow(hWnd, SW_SHOWDEFAULT);
 		UpdateWindow(hWnd);
-
+		
 		// Enter the message loop
 		MSG msg;
 		ZeroMemory(&msg, sizeof(msg));

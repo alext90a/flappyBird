@@ -3,12 +3,8 @@
 
 static const int kCollideable = 100;
 static const int kMaxGameObjects = 100;
-static const float kBackgroundWidth = 20.0f;
-/*
-static const float kLeftmostX = -30.0f;
-static const float kRightMostX = 30.0f;
-static const float kBackSpeed = -1.0f;
-*/
+static const float kBackgroundWidth = 22.0f;
+
 static const float kPlayerSpeed = 2.5f;
 static const float kGravity = -9.8f;
 static const float kAddedImpulse = 15.0f;
@@ -33,3 +29,5 @@ static const int kBarrierLayer = 2;
 static const int kPlayerLayer = 3;
 static const int kMenuLayer = 4;
 
+
+static const std::vector<int> kGameLayers{kBackgroundLayer, kGroundLayer, kBarrierLayer, kPlayerLayer, kMenuLayer};

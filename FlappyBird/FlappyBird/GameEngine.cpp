@@ -41,8 +41,6 @@ HRESULT GameEngine::init(HWND hWnd)
 
 void GameEngine::close()
 {
-	GameObject::mObjects;
-	
 	
 	for (auto curLayer : mGameObjectLayers)
 	{
@@ -75,10 +73,8 @@ void GameEngine::close()
 
 	if (g_pD3D != NULL)
 		g_pD3D->Release();
-	int objects = GameObject::mObjects;
-	Component::mAlived;
-	
-	ExitProcess(0);
+
+
 }
 
 HRESULT GameEngine::initD3D(HWND hWnd)
@@ -295,6 +291,11 @@ void GameEngine::getMouseWorldRay(D3DXVECTOR3& pickRayDir, D3DXVECTOR3& pickRayO
 
 
 	D3DXVec3Normalize(&pickRayDir, &pickRayDir);
+}
+
+HWND GameEngine::getHwnd()
+{
+	return mHwnd;
 }
 
 
