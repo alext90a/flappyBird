@@ -28,7 +28,7 @@ void TextureManager::clean()
 	mUsedTexture.clear();
 }
 
-std::shared_ptr<Texture> TextureManager::createTexture(std::string filePath)
+std::shared_ptr<Texture> TextureManager::getTexture(const std::string& filePath)
 {
 	auto findedIter = mUsedTexture.find(filePath);
 	if (findedIter != mUsedTexture.end())

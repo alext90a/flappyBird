@@ -18,12 +18,12 @@ float BirdState::getSpeed()const
 
 void FlyState::update()
 {
-	mBird->getGameObject()->addLocalPosY(kGravity * Game::mDeltaTime);
+	mBird->getGameObject()->addLocalPosY(kGravity * GameEngine::mDeltaTime);
 	float curUpForce = mBird->getCurUpForce();
-	mBird->getGameObject()->addLocalPosY(curUpForce * Game::mDeltaTime);
+	mBird->getGameObject()->addLocalPosY(curUpForce * GameEngine::mDeltaTime);
 	if (curUpForce > 0.0f)
 	{
-		curUpForce -= kImpulseDecreaseSpeed * Game::mDeltaTime;
+		curUpForce -= kImpulseDecreaseSpeed * GameEngine::mDeltaTime;
 		mBird->setCurUpForce(curUpForce);
 	}
 	if (mBird->getGameObject()->getLocalPosY() < -9.0f)
@@ -38,7 +38,7 @@ void FlyState::update()
 		{
 			mBird->getGameObject()->setLocalPosY(9.0f);
 		}
-		mBird->getGameObject()->addLocalPosX(kPlayerSpeed * Game::mDeltaTime);
+		mBird->getGameObject()->addLocalPosX(kPlayerSpeed * GameEngine::mDeltaTime);
 	}
 }
 
@@ -49,7 +49,7 @@ float FlyState::getSpeed()const
 
 void FallDawnState::update()
 {
-	mBird->getGameObject()->addLocalPosY(kGravity * Game::mDeltaTime);
+	mBird->getGameObject()->addLocalPosY(kGravity * GameEngine::mDeltaTime);
 	if (mBird->getGameObject()->getLocalPosY() < -9.0f)
 	{
 		mBird->getGameObject()->setLocalPosY(-9.0f);

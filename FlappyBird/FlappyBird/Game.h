@@ -1,5 +1,5 @@
 #pragma once
-
+class GameEngine;
 class Game
 {
 public:
@@ -18,11 +18,8 @@ public:
 	void showMainMenu();
 	void showHighScore();
 
-	static float mDeltaTime;
 protected:
-	HRESULT initD3D(HWND hWnd);
 	HRESULT initGeometry();
-	void SetupMatrices();
 
 	void checkCollideables();
 	void createBackground();
@@ -38,19 +35,10 @@ protected:
 	void createHighscoreMenu();
 	void createPlayerHud();
 protected:
-	LPDIRECT3D9             g_pD3D = NULL; // Used to create the D3DDevice
-	LPDIRECT3DDEVICE9       mDevice = NULL; // Our rendering device
-	LPD3DXFONT				g_Font = NULL;
+	std::unique_ptr<GameEngine> mGameEngine = nullptr;
 
-	std::unique_ptr<TextureManager> mTextureManager = std::make_unique<TextureManager>();
-	std::unique_ptr<GeometryManager> mGeometryManager = std::make_unique<GeometryManager>();
-	std::map<int, std::shared_ptr<std::vector<std::shared_ptr<GameObject>>>> mGameObjectLayers;
-
-	static DWORD mLastUpdateTime;
 	float mTimeSinceLastBarrierSpawn;
-	D3DXMATRIXA16 mMatView;
-	D3DXMATRIXA16 mMatProj;
-	HWND mHwnd;
+
 	
 
 	std::shared_ptr<Bird> mPlayer = nullptr;

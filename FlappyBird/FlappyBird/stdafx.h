@@ -46,9 +46,10 @@
 #include "BackgroundController.h"
 #include "GroundObjectController.h"
 #include "PlayerHud.h"
-
+#include "Camera.h"
 #include "TextureManager.h"
 #include "GameObject.h"
 #include "Game.h"
+#include "GameEngine.h"
 
 // TODO: reference additional headers your program requires here

@@ -152,9 +152,11 @@
     <ClInclude Include="Bird.h" />
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="FlappyBird.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameConstants.h" />
+    <ClInclude Include="GameEngine.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="GeometryManager.h" />
@@ -176,9 +178,11 @@
     <ClCompile Include="Bird.cpp" />
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="FlappyBird.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="GeometryManager.cpp" />

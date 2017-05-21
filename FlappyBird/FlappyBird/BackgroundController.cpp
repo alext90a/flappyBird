@@ -22,7 +22,7 @@ void BackgroundController::update()
 	for (unsigned int i = 0; i < mBackgroundObjects.size(); ++i)
 	{
 
-		float displacement = mPlayer->getSpeed() * Game::mDeltaTime;
+		float displacement = mPlayer->getSpeed() * GameEngine::mDeltaTime;
 		mBackgroundObjects[i]->addLocalPosX(displacement);
 
 

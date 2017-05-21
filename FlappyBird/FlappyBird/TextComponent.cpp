@@ -12,7 +12,7 @@ TextComponent::~TextComponent()
 {
 }
 
-void TextComponent::init(LPD3DXFONT* font)
+void TextComponent::init(LPD3DXFONT font)
 {
 
 	mFont = font;
@@ -22,7 +22,7 @@ void TextComponent::init(LPD3DXFONT* font)
 
 void TextComponent::draw()
 {
-	(*mFont)->DrawTextA(NULL,
+	mFont->DrawTextA(NULL,
 		mText.c_str(),
 		strlen(mText.c_str()),
 		&mTextRect,

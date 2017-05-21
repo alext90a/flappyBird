@@ -8,7 +8,7 @@ public:
 	TextureManager();
 	~TextureManager();
 	void init(LPDIRECT3DDEVICE9 device);
-	std::shared_ptr<Texture> createTexture(std::string texturePath);
+	std::shared_ptr<Texture> getTexture(const std::string& texturePath);
 	void clean();
 protected:
 	LPDIRECT3DDEVICE9       g_pd3dDevice = NULL; // Our rendering device
