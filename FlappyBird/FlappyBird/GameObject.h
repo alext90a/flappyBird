@@ -28,7 +28,7 @@ public:
 	bool isEnabled()const;
 	void setEnabled(bool enabled);
 
-	static int mObjects;
+
 protected:
 	void onMatrixChanged();
 	const D3DXMATRIXA16* const getWorldPosMatrix()const;

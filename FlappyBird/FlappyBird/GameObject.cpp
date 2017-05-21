@@ -1,17 +1,14 @@
 #include "stdafx.h"
 #include "GameObject.h"
 
-int GameObject::mObjects(0);
 
 GameObject::GameObject()
 {
-	++mObjects;
 }
 
 
 GameObject::~GameObject()
 {
-	--mObjects;
 	clean();
 }
 

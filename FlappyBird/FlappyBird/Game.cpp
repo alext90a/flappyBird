@@ -86,13 +86,10 @@ void Game::close()
 	mHighScoreDialog = nullptr;
 	mBackgroundController = nullptr;
 	
-	GameObject::mObjects;
 
-	
 	mGameEngine->close();
 	
-	Component::mAlived;
-	GameObject::mObjects;
+
 	
 	int i = 0;
 

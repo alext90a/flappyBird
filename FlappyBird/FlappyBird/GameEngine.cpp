@@ -59,7 +59,6 @@ void GameEngine::close()
 	mGeometryManager->clean();
 	mTextureManager->clean();
 	
-	GameObject::mObjects;
 
 	
 	if (g_Font != NULL)

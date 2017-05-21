@@ -13,8 +13,6 @@ public:
 
 	GameObject* getGameObject()const;
 	void setGameObject(GameObject* gameObj);
-	static int mAlived;
-	static std::list<Component*> mComs;
 protected:
 	GameObject* mGameObject;
 	
