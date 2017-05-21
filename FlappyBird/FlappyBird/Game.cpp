@@ -116,7 +116,7 @@ HRESULT Game::initGeometry()
 	playerGameObj->addComponent(mPlayerBounds);
 	
 	
-	mPlayer = std::make_shared<Bird>();
+	mPlayer = std::make_shared<PlayerBird>();
 	playerGameObj->addComponent(mPlayer);
 	mPlayer->setOnPlayerCrashed([this]() {this->onPlayerCrashed(); });
 	

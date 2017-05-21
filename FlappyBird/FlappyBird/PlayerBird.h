@@ -1,14 +1,14 @@
 #pragma once
-class Bird;
+class PlayerBird;
 
 class BirdState
 {
 public:
 	virtual void update();
-	void init(Bird* owner);
+	void init(PlayerBird* owner);
 	virtual float getSpeed()const;
 protected:
-	Bird* mBird;
+	PlayerBird* mBird;
 };
 
 class FlyState : public BirdState
@@ -24,11 +24,11 @@ public:
 	void update() override;
 };
 
-class Bird : public Component
+class PlayerBird : public Component
 {
 public:
-	Bird();
-	~Bird();
+	PlayerBird();
+	~PlayerBird();
 
 	void start();
 	void update()override;

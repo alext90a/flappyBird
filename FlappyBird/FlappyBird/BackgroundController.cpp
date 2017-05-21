@@ -23,7 +23,7 @@ void BackgroundController::update()
 
 }
 
-void BackgroundController::setPlayer(std::shared_ptr<Bird> player)
+void BackgroundController::setPlayer(std::shared_ptr<PlayerBird> player)
 {
 	mPlayer = player;
 }

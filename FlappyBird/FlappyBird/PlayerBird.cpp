@@ -1,7 +1,6 @@
 #include "stdafx.h"
-#include "Bird.h"
 
-void BirdState::init(Bird* bird)
+void BirdState::init(PlayerBird* bird)
 {
 	mBird = bird;
 }
@@ -58,7 +57,7 @@ void FallDawnState::update()
 }
 
 
-Bird::Bird()
+PlayerBird::PlayerBird()
 {
 	mCurState = mCrashedState;
 	mFlyState->init(this);
@@ -67,46 +66,46 @@ Bird::Bird()
 }
 
 
-Bird::~Bird()
+PlayerBird::~PlayerBird()
 {
 }
 
-void Bird::update()
+void PlayerBird::update()
 {
 	mCurState->update();
 	
 	
 }
 
-void Bird::addUpImpulse()
+void PlayerBird::addUpImpulse()
 {
 	mCurUpForce = kAddedImpulse;
 	mTimeSinceForceAdded = 0.0f;
 }
 
-float Bird::getCurUpForce()const
+float PlayerBird::getCurUpForce()const
 {
 	return mCurUpForce;
 }
 
-void Bird::setCurUpForce(float force)
+void PlayerBird::setCurUpForce(float force)
 {
 	mCurUpForce = force;
 }
 
-void Bird::setOnPlayerCrashed(std::function<void()> func)
+void PlayerBird::setOnPlayerCrashed(std::function<void()> func)
 {
 	mOnPlayerCrashed = func;
 }
 
-void Bird::start()
+void PlayerBird::start()
 {
 	mGameObject->setLocalPos(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 	mCurState = mFlyState;
 	mScore = 0;
 }
 
-void Bird::setFallDawnState()
+void PlayerBird::setFallDawnState()
 {
 	mCurState = mFallDawnState;
 	if (mOnPlayerFallDawn != nullptr)
@@ -115,7 +114,7 @@ void Bird::setFallDawnState()
 	}
 }
 
-void Bird::setCrashedState()
+void PlayerBird::setCrashedState()
 {
 	mCurState = mCrashedState;
 	if (mOnPlayerCrashed != nullptr)
@@ -124,22 +123,22 @@ void Bird::setCrashedState()
 	}
 }
 
-void Bird::addScore(int score)
+void PlayerBird::addScore(int score)
 {
 	mScore += score;
 }
 
-void Bird::setScore(int score)
+void PlayerBird::setScore(int score)
 {
 	mScore = score;
 }
 
-int Bird::getScore()const
+int PlayerBird::getScore()const
 {
 	return mScore;
 }
 
-float Bird::getSpeed()const
+float PlayerBird::getSpeed()const
 {
 	return mCurState->getSpeed();
 }

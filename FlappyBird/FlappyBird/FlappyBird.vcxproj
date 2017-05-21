@@ -149,7 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BackgroundController.h" />
-    <ClInclude Include="Bird.h" />
+    <ClInclude Include="PlayerBird.h" />
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
@@ -166,7 +166,7 @@
     <ClInclude Include="HighscoreLine.h" />
     <ClInclude Include="PlayerHud.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="Sprite.h" />
+    <ClInclude Include="Renderable.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TextComponent.h" />
@@ -175,7 +175,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BackgroundController.cpp" />
-    <ClCompile Include="Bird.cpp" />
+    <ClCompile Include="PlayerBird.cpp" />
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -190,7 +190,7 @@
     <ClCompile Include="HighScoreDialog.cpp" />
     <ClCompile Include="HighscoreLine.cpp" />
     <ClCompile Include="PlayerHud.cpp" />
-    <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="Renderable.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

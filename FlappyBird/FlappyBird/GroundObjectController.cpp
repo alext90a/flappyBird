@@ -11,7 +11,7 @@ GroundObjectController::~GroundObjectController()
 {
 }
 
-void GroundObjectController::setPlayer(std::shared_ptr<Bird> player)
+void GroundObjectController::setPlayer(std::shared_ptr<PlayerBird> player)
 {
 	mPlayer = player;
 }

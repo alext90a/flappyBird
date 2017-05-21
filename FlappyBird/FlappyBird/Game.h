@@ -41,7 +41,7 @@ protected:
 
 	
 
-	std::shared_ptr<Bird> mPlayer = nullptr;
+	std::shared_ptr<PlayerBird> mPlayer = nullptr;
 	std::shared_ptr<BoundingBox> mPlayerBounds = nullptr;
 	std::shared_ptr<PlayerHud> mPlayerHud = nullptr;
 
