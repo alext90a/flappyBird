@@ -21,7 +21,7 @@ HRESULT Texture::create(LPDIRECT3DDEVICE9 device, const std::string& filePath)
 		if (FAILED(D3DXCreateTextureFromFile(g_pd3dDevice, filePath.c_str(), &g_pTexture)))
 		{
 			std::string errorMessage = "Could not find " + filePath;
-			MessageBox(NULL, errorMessage.c_str(), kGameName.c_str(), MB_OK);
+			MessageBox(NULL, errorMessage.c_str(), Game::kGameName.c_str(), MB_OK);
 			return E_FAIL;
 		}
 	}

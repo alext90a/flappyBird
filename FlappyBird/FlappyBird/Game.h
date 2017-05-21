@@ -2,6 +2,7 @@
 class GameEngine;
 class Game
 {
+
 public:
 	Game();
 	~Game();
@@ -18,6 +19,38 @@ public:
 	void showMainMenu();
 	void showHighScore();
 
+public:
+	static float kPlayerSpeed;
+	static const std::string kGameName;
+
+	static const int kCollideable = 100;
+	static const int kMaxGameObjects = 100;
+	static const float kBackgroundWidth;
+	static float kGravity;
+	static float kAddedImpulse;
+	static const float kImpulseDecreaseSpeed;
+	static const int kMaxBarriers = 10;
+	static float kBarrierTimeSpawn;
+	static const float kBarrierXStartOffset;
+	static const float kObjLiveMaxDistance;
+
+	static const int kGameWidth = 640;
+	static const int kGameHeight = 480;
+
+	static const float kButtonHeight;
+	static const int kHighscoreLines = 5;
+
+	static const float kPlayerXOffset;
+	static const float kGroundWidth;
+
+	static const int kBackgroundLayer = 0;
+	static const int kGroundLayer = 1;
+	static const int kBarrierLayer = 2;
+	static const int kPlayerLayer = 3;
+	static const int kMenuLayer = 4;
+
+
+	static const std::vector<int> kGameLayers;
 protected:
 	HRESULT initGeometry();
 
@@ -34,6 +67,7 @@ protected:
 	void createMainMenu();
 	void createHighscoreMenu();
 	void createPlayerHud();
+	void openGameConstFile();
 protected:
 	std::unique_ptr<GameEngine> mGameEngine = nullptr;
 

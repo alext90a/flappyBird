@@ -19,9 +19,12 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <memory>
 #include <random>
+#include <fstream>
+#include <iostream>
 #include <list>
 #include <unordered_set>
 #include <functional>

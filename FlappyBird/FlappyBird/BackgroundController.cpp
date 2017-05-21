@@ -19,7 +19,7 @@ void BackgroundController::insertBackgroundObject(std::shared_ptr<GameObject> ba
 void BackgroundController::update()
 {
 
-	mBackgroundObject->setLocalPosX(mPlayer->getGameObject()->getLocalPosX() + kPlayerXOffset);
+	mBackgroundObject->setLocalPosX(mPlayer->getGameObject()->getLocalPosX() + Game::kPlayerXOffset);
 
 }
 

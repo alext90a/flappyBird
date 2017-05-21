@@ -1,8 +1,19 @@
 #include "stdafx.h"
 #include "Game.h"
 
-
-
+float Game::kPlayerSpeed(2.5f);
+const std::string Game::kGameName("Falling bird");
+const float Game::kBackgroundWidth(22.0f);
+float Game::kGravity(-9.8f);
+float Game::kAddedImpulse(15.0f);
+const float Game::kImpulseDecreaseSpeed(10.0f);
+float Game::kBarrierTimeSpawn(4.0f);
+const float Game::kBarrierXStartOffset(25.0f);
+const float Game::kObjLiveMaxDistance(30.0f);
+const float Game::kButtonHeight(3.0f);
+const float Game::kPlayerXOffset(9.0f);
+const float Game::kGroundWidth(20.0f);
+const std::vector<int> Game::kGameLayers({ kBackgroundLayer, kGroundLayer, kBarrierLayer, kPlayerLayer, kMenuLayer });
 Game::Game()
 {
 	
@@ -43,8 +54,8 @@ HRESULT Game::init(HWND hWnd)
 	{
 		return E_FAIL;
 	}
+	openGameConstFile();
 	showMainMenu();
-	
 	return S_OK;
 }
 
@@ -720,4 +731,41 @@ void Game::showHighScore()
 	mHighScoreDialog->showDialog();
 	mMainMenu->setEnabled(false);
 	mHighScoreDialog->getGameObject()->setLocalPosX(mPlayer->getGameObject()->getLocalPosX() + kPlayerXOffset);
+}
+
+void Game::openGameConstFile()
+{
+	std::string curLine;
+	std::ifstream file("GameConstants.txt");
+	if (file.is_open())
+	{
+		std::unordered_map<std::string, float*> constData{	{ "playerSpeed", &kPlayerSpeed}, 
+													{ "playerGravity", &kGravity},
+													{ "impulseByClick", &kAddedImpulse },
+													{ "barriersSpawnInterval", &kBarrierTimeSpawn }
+		};
+		//constData.insert(std::make_pair("playerSpeed", &kPlayerSpeed));
+		while (std::getline(file, curLine))
+		{
+			auto findRes = curLine.find_last_of(':');
+			if (findRes != std::string::npos)
+			{
+				std::string key = curLine.substr(0, findRes);
+				float value=0.0f;
+				try 
+				{
+					value = std::stof(curLine.substr(findRes + 1, curLine.size() - findRes + 1));
+				}
+				catch (std::exception& e)
+				{
+					continue;
+				}
+				if (constData.find(key) != constData.end())
+				{
+					*constData[key] = value;
+				}
+				int i = 0;
+			}
+		}
+	}
 }

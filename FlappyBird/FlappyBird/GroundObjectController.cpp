@@ -21,10 +21,10 @@ void GroundObjectController::update()
 	for (unsigned int i = 0; i < mGroundObjects.size(); ++i)
 	{
 		GameObject* curObj = mGroundObjects[i];
-		if (mPlayer->getGameObject()->getLocalPosX() - curObj->getLocalPosX() > kObjLiveMaxDistance)
+		if (mPlayer->getGameObject()->getLocalPosX() - curObj->getLocalPosX() > Game::kObjLiveMaxDistance)
 		{
 			int nextInd = (i + mGroundObjects.size() - 1) % mGroundObjects.size();
-			curObj->setLocalPosX(mGroundObjects[nextInd]->getLocalPosX() + kGroundWidth);
+			curObj->setLocalPosX(mGroundObjects[nextInd]->getLocalPosX() + Game::kGroundWidth);
 		}
 	}
 }
@@ -33,7 +33,7 @@ void GroundObjectController::setStartPos()
 {
 	for (unsigned int i = 0; i < mGroundObjects.size(); ++i)
 	{
-		mGroundObjects[i]->setLocalPosX(i*kGroundWidth);
+		mGroundObjects[i]->setLocalPosX(i*Game::kGroundWidth);
 	}
 }
 

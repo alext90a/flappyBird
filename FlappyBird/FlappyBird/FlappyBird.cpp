@@ -122,8 +122,8 @@ INT WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, INT)
 	RegisterClassEx(&wc);
 
 	// Create the application's window
-	HWND hWnd = CreateWindow("D3D Tutorial", kGameName.c_str(),
-		WS_SYSMENU, 100, 100, kGameWidth, kGameHeight,
+	HWND hWnd = CreateWindow("D3D Tutorial", Game::kGameName.c_str(),
+		WS_SYSMENU, 100, 100, Game::kGameWidth, Game::kGameHeight,
 		NULL, NULL, wc.hInstance, NULL);
 
 	// Initialize Direct3D

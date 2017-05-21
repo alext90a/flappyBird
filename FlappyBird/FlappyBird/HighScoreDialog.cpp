@@ -4,7 +4,7 @@
 
 HighScoreDialog::HighScoreDialog()
 {
-	mLines.reserve(kHighscoreLines);
+	mLines.reserve(Game::kHighscoreLines);
 }
 
 
@@ -24,7 +24,7 @@ void HighScoreDialog::setScore(const std::string& name, int score)
 			}
 			mLines[i]->setValue(name, score);
 			mLines[i]->setColor(mNewScoreColor);
-			if (i == kHighscoreLines - 1)
+			if (i == Game::kHighscoreLines - 1)
 			{
 				mMinScore = score;
 			}

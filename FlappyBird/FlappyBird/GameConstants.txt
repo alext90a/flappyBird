@@ -1,0 +1,4 @@
+playerSpeed:2.5
+playerGravity:-9.8
+impulseByClick:15.0
+barriersSpawnInterval:4.0

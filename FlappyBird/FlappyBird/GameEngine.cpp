@@ -146,7 +146,7 @@ void GameEngine::SetupMatrices()
 	// the aspect ratio, and the near and far clipping planes (which define at
 	// what distances geometry should be no longer be rendered).
 	
-	D3DXMatrixPerspectiveFovLH(&mMatProj, D3DX_PI / 4, kGameWidth/kGameHeight, 1.0f, 100.0f);
+	D3DXMatrixPerspectiveFovLH(&mMatProj, D3DX_PI / 4, Game::kGameWidth/Game::kGameHeight, 1.0f, 100.0f);
 	mDevice->SetTransform(D3DTS_PROJECTION, &mMatProj);
 }
 
