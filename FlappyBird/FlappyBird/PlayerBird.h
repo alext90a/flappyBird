@@ -4,6 +4,7 @@ class PlayerBird;
 class BirdState
 {
 public:
+	virtual ~BirdState();
 	virtual void update();
 	void init(PlayerBird* owner);
 	virtual float getSpeed()const;

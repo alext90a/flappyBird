@@ -1,5 +1,9 @@
 #include "stdafx.h"
 
+BirdState::~BirdState()
+{
+
+}
 void BirdState::init(PlayerBird* bird)
 {
 	mBird = bird;

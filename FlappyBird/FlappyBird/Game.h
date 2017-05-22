@@ -52,7 +52,7 @@ public:
 
 	static const std::vector<int> kGameLayers;
 protected:
-	HRESULT initGeometry();
+	HRESULT initGameObjects();
 
 	void checkCollideables();
 	void createBackground();
@@ -67,6 +67,9 @@ protected:
 	void createMainMenu();
 	void createHighscoreMenu();
 	void createPlayerHud();
+	void createPlayer();
+	void createGround();
+	void createBarriers();
 	void openGameConstFile();
 protected:
 	std::unique_ptr<GameEngine> mGameEngine = nullptr;

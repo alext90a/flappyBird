@@ -17,13 +17,6 @@ const std::vector<int> Game::kGameLayers({ kBackgroundLayer, kGroundLayer, kBarr
 Game::Game()
 {
 	
-	
-
-
-	mBarriersActive.reserve(kMaxBarriers);
-	mCollideableLayer.reserve(kMaxGameObjects);
-	mBonusLayer.reserve(kMaxGameObjects);
-	mButtons.reserve(kMaxGameObjects);
 }
 
 int Game::getRandomInt(int minValue, int maxValue)
@@ -49,34 +42,25 @@ HRESULT Game::init(HWND hWnd)
 	{
 		mGameEngine->addLayer(curLayer);
 	}
+	openGameConstFile();
 
-	if (FAILED(initGeometry()))
+	if (FAILED(initGameObjects()))
 	{
 		return E_FAIL;
 	}
-	openGameConstFile();
+	
 	showMainMenu();
 	return S_OK;
 }
 
 void Game::close()
 {
-	
-
-
 	mBarriersActive.clear();
 	mBonusLayer.clear();
 	mCollideableLayer.clear();
 	mBarriersReserve.clear();
 	mButtons.clear();
 
-
-
-
-
-	
-	
-	
 	mPlayer = nullptr;
 	mPlayerBounds = nullptr;
 	mPlayerHud = nullptr;
@@ -88,50 +72,36 @@ void Game::close()
 	
 
 	mGameEngine->close();
-	
 
-	
-	int i = 0;
 
 }
 
 
-HRESULT Game::initGeometry()
+HRESULT Game::initGameObjects()
 {
 
-
+	mBarriersActive.reserve(kMaxBarriers);
+	mCollideableLayer.reserve(kMaxGameObjects);
+	mBonusLayer.reserve(kMaxGameObjects);
+	mButtons.reserve(kMaxGameObjects);
 	mCollideableLayer.reserve(kCollideable);
-
-	std::shared_ptr<Texture> mPlayerTexture = mGameEngine->getTexture("png\\bird.png");
-	
 	
 
+	createPlayer();
+	createBarriers();
+	createGround();
+	createBackground();
+	createMainMenu();
+	createHighscoreMenu();
+	createPlayerHud();
+
+
 	
-	
-	//create player
-	std::shared_ptr<GameObject> playerGameObj = std::make_shared<GameObject>();
-	playerGameObj->init(mGameEngine->getDevice());
-	
-	std::shared_ptr<Renderable> playerSprite = std::make_shared<Renderable>();
-	std::shared_ptr<Geometry> playerGeometry = mGameEngine->getGeometry(GEOMETRY::POLY_1X1);
-	playerSprite->init(playerGeometry, mPlayerTexture);
-	playerGameObj->addComponent(playerSprite);
-	
-	
-	mPlayerBounds = std::make_shared<BoundingBox>();
-	mPlayerBounds->init(playerGeometry->getTopLeft(), playerGeometry->getBottomRight(), nullptr);
-	playerGameObj->setLocalScale(2.0f, 2.0f, 1.0f);
-	playerGameObj->addComponent(mPlayerBounds);
-	
-	
-	mPlayer = std::make_shared<PlayerBird>();
-	playerGameObj->addComponent(mPlayer);
-	mPlayer->setOnPlayerCrashed([this]() {this->onPlayerCrashed(); });
-	
-	mGameEngine->addGameObject(kPlayerLayer, playerGameObj);
-	
-	//==============================================
-	
+	return S_OK;
+}
+
+void Game::createBarriers()
+{
 	for (int i = 0; i < kMaxBarriers; ++i)
 	{
 		int random = getRandomInt(1, 3);
@@ -154,10 +124,37 @@ HRESULT Game::initGeometry()
 			mBarriersReserve.push_back(barrier);
 			mGameEngine->addGameObject(kBarrierLayer, barrier);
 		}
-		
-	}
 
-	//create ground
+	}
+}
+
+void Game::createPlayer()
+{
+	std::shared_ptr<GameObject> playerGameObj = std::make_shared<GameObject>();
+	std::shared_ptr<Texture> mPlayerTexture = mGameEngine->getTexture("png\\bird.png");
+	playerGameObj->init(mGameEngine->getDevice());
+
+	std::shared_ptr<Renderable> playerSprite = std::make_shared<Renderable>();
+	std::shared_ptr<Geometry> playerGeometry = mGameEngine->getGeometry(GEOMETRY::POLY_1X1);
+	playerSprite->init(playerGeometry, mPlayerTexture);
+	playerGameObj->addComponent(playerSprite);
+
+
+	mPlayerBounds = std::make_shared<BoundingBox>();
+	mPlayerBounds->init(playerGeometry->getTopLeft(), playerGeometry->getBottomRight(), nullptr);
+	playerGameObj->setLocalScale(2.0f, 2.0f, 1.0f);
+	playerGameObj->addComponent(mPlayerBounds);
+
+
+	mPlayer = std::make_shared<PlayerBird>();
+	playerGameObj->addComponent(mPlayer);
+	mPlayer->setOnPlayerCrashed([this]() {this->onPlayerCrashed(); });
+
+	mGameEngine->addGameObject(kPlayerLayer, playerGameObj);
+}
+
+void Game::createGround()
+{
 	std::shared_ptr<GameObject> groundParentObject(std::make_shared<GameObject>());
 	groundParentObject->init(mGameEngine->getDevice());
 	mGroundController = std::make_shared<GroundObjectController>();
@@ -175,21 +172,12 @@ HRESULT Game::initGeometry()
 		groundObject->setLocalScale(2.0f, 2.0f, 1.0f);
 		groundObject->setLocalPosY(-10.0f);
 		groundObject->setLocalPosX(kGroundWidth*i);
-		
-		
+
+
 		groundParentObject->addChild(groundObject);
 		mGroundController->addGroundObject(groundObject.get());
 	}
 	mGameEngine->addGameObject(kGroundLayer, groundParentObject);
-
-	createBackground();
-	createMainMenu();
-	createHighscoreMenu();
-	createPlayerHud();
-
-
-	
-	return S_OK;
 }
 
 void Game::createPlayerHud()
@@ -403,6 +391,7 @@ void Game::update()
 	mGameEngine->setCameraParams(D3DXVECTOR3(mPlayer->getGameObject()->getLocalPosX() + kPlayerXOffset, 0.0f, -25.0f),
 		D3DXVECTOR3(mPlayer->getGameObject()->getLocalPosX() + kPlayerXOffset, 0.0f, 0.0f));
 	mGameEngine->update();
+
 	if (mIsOnMenu)
 	{
 		return;
@@ -764,5 +753,6 @@ void Game::openGameConstFile()
 				int i = 0;
 			}
 		}
+		file.close();
 	}
 }
